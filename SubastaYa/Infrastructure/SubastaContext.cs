@@ -1,24 +1,31 @@
-﻿using System;
+﻿using Domain.Entities;
+using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Text;
-using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure
 {
     public class SubastaContext : DbContext
     {
+
         public SubastaContext(DbContextOptions<SubastaContext> options) : base(options)
         {
+        }
 
-        } 
+        public DbSet<Subasta> Subastas => Set<Subasta>();
+        public DbSet<Billetera> Billeteras => Set<Billetera>();
+        public DbSet<TransaccionLedger> Transacciones => Set<TransaccionLedger>();
+        public DbSet<Usuario> Usuarios => Set<Usuario>();
+        public DbSet<Puja> Pujas => Set<Puja>();
+        public DbSet<Categoria> Categorias => Set<Categoria>();
+        public DbSet<AuditoriaLog> AuditoriaLogs => Set<AuditoriaLog>();
 
-        public DbSet<Subasta> Subastas { get; set; }
-        public DbSet<Categoria> Categorias { get; set; }
-        public DbSet<Puja> Pujas { get; set; }
-        public DbSet<Billetera> Billeteras { get; set; }
-        public DbSet<TransaccionLedger> TransaccionesLedger { get; set; }
-        public DbSet<Usuario> Usuarios { get; set; }
-        public DbSet<AuditoriaLog> AuditoriaLogs { get; set; }
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.ApplyConfigurationsFromAssembly(typeof(SubastaContext).Assembly);
+            base.OnModelCreating(modelBuilder);
+        }
 
     }
 }
