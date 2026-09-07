@@ -1,4 +1,6 @@
+using Domain.Interfaces;
 using Infrastructure;
+using Infrastructure.Repositories;
 using Infrastructure.Seed;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,6 +14,13 @@ builder.Services.AddOpenApi();
 
 builder.Services.AddDbContext<SubastaContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("SubastaConnection")));
+
+
+builder.Services.AddScoped<ISubastaRepository, SubastaRepository>();
+builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
+builder.Services.AddScoped<IPujaRepository, PujaRepository>();
+builder.Services.AddScoped<IBilleteraRepository, BilleteraRepository>();
+builder.Services.AddScoped<ICategoriaRepository, CategoriaRepository>();
 
 var app = builder.Build();
 
