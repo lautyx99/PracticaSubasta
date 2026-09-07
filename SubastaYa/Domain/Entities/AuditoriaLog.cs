@@ -12,19 +12,19 @@ namespace Domain.Entities
 
         public int UsuarioId { get; private set; }
 
-        public string Entidad { get; private set; }
+        public string Entidad { get; private set; } = null!;
 
         public int EntidadId { get; private set; }
 
-        public string Accion { get; private set; }
+        public string Accion { get; private set; } = null!;
 
-        public string DetalleJson { get; private set; }
+        public string DetalleJson { get; private set; } = null!;
 
         public DateTime Fecha { get; private set; }
 
-        public string Servicio { get; private set; }
+        public string Servicio { get; private set; } = null!;
 
-        public virtual Usuario Usuario { get; private set; }
+        public virtual Usuario Usuario { get; private set; } = null!;
 
         private AuditoriaLog() { }
 

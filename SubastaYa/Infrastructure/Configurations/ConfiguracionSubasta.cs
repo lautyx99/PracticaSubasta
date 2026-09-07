@@ -25,6 +25,12 @@ namespace Infrastructure.Configurations
                 .HasForeignKey(s => s.CategoriaId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            builder.Property(x => x.PrecioInicial)
+                    .HasPrecision(18, 2);
+
+            builder.Property(x => x.IncrementoMinimo)
+                   .HasPrecision(18, 2);
+
         }
     }
 }

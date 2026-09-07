@@ -19,7 +19,7 @@ namespace Domain.Entities
         public decimal SaldoDisponible { get; private set; }
 
         public int Version { get; private set; }
-        public virtual Usuario Usuario { get; private set; }
+        public virtual Usuario Usuario { get; private set; } = null!;
 
         private Billetera() { }
 

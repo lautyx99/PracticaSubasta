@@ -34,16 +34,16 @@ namespace Domain.Entities
 
         public int Version { get; private set; }
 
-        public virtual Usuario Vendedor { get; private set; }
+        public virtual Usuario Vendedor { get; private set; } = null!;
 
-        public virtual Categoria Categoria { get; private set; }
+        public virtual Categoria Categoria { get; private set; } = null!;
 
         private Subasta()
         {
             // Required by EF Core
         }
         
-        public Subasta(int vendedorId, int categoriaId, string titulo, string descripcion, string urlImagen, decimal precioInicial, decimal incrementoMinimo, DateTime fechaInicio, DateTime fechaFin)
+        public Subasta(int vendedorId, int categoriaId, string titulo, string descripcion, string? urlImagen, decimal precioInicial, decimal incrementoMinimo, DateTime fechaInicio, DateTime fechaFin)
         {
             VendedorId = vendedorId;
             CategoriaId = categoriaId;
@@ -57,6 +57,29 @@ namespace Domain.Entities
             FechaFinOriginal = fechaFin;
             Estado = "Activa";
             Version = 1;
+        }
+
+        // Métodos de dominio
+
+        public void MarcarComoFinalizada()
+        {
+            Estado = "Finalizada";
+        }
+
+        public void MarcarComoDesierta()
+        {
+            Estado = "Desierta";
+        }
+
+        public void MarcarComoProxima()
+        {
+            Estado = "Proxima";
+        }
+
+        public void ExtenderTiempo(DateTime nuevaFechaFin)
+        {
+            FechaFin = nuevaFechaFin;
+            Version++;
         }
 
     }

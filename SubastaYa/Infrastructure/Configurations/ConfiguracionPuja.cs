@@ -24,6 +24,10 @@ namespace Infrastructure.Configurations
                 .WithMany()
                 .HasForeignKey(u => u.CompradorId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Property(x => x.Monto)
+                .HasPrecision(18, 2);
+        
         }
     }
 }

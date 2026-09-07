@@ -12,16 +12,16 @@ namespace Domain.Entities
 
         public int BilleteraId { get; private set; }
 
-        public string Tipo { get; private set; }
+        public string Tipo { get; private set; } = null!;
 
         public decimal Monto { get; private set; }
 
         public DateTime Fecha { get; private set; }
 
-        public int SubastaId { get; private set; }
+        public int SubastaId { get; private set; } 
 
-        public virtual Subasta Subasta { get; private set; }
-        virtual public Billetera Billetera { get; private set; }
+        public virtual Subasta Subasta { get; private set; } = null!;
+        public virtual Billetera Billetera { get; private set; } = null!;
 
         private TransaccionLedger() { }
 

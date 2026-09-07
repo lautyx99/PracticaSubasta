@@ -19,6 +19,15 @@ namespace Infrastructure.Configurations
                 .WithMany()
                 .HasForeignKey(u => u.UsuarioId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Property(x => x.SaldoTotal)
+                    .HasPrecision(18, 2);
+
+            builder.Property(x => x.SaldoRetenido)
+                   .HasPrecision(18, 2);
+
+            builder.Property(x => x.SaldoDisponible)
+                   .HasPrecision(18, 2);
         }
     }
 }

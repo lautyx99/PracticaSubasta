@@ -10,9 +10,9 @@ namespace Domain.Entities
     {
         public int Id { get; private set; }
 
-        public string Nombre { get; private set; }
+        public string Nombre { get; private set; } = null!;
 
-        public string UrlIcono { get; private set; }
+        public string UrlIcono { get; private set; } = null!;
 
 
         private Categoria() { }

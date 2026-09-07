@@ -24,6 +24,9 @@ namespace Infrastructure.Configurations
                 .WithMany()
                 .HasForeignKey(s => s.SubastaId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Property(x => x.Monto)
+                .HasPrecision(18, 2);
         }
     }
 }

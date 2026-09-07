@@ -18,9 +18,9 @@ namespace Domain.Entities
 
         public DateTime Fecha_Puja { get; private set; }
 
-        public virtual Subasta Subasta { get; private set; }
+        public virtual Subasta Subasta { get; private set; } = null!;
 
-        public virtual Usuario Usuario { get; private set; }
+        public virtual Usuario Usuario { get; private set; } = null!;
 
         private Puja() { }
 

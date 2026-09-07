@@ -10,15 +10,15 @@ namespace Domain.Entities
     {
         public int Id { get; private set; }
 
-        public string Email { get; private set; } 
+        public string Email { get; private set; } = null!;
 
-        public string Nombre { get; private set; }
+        public string Nombre { get; private set; } = null!;
 
-        public string ContraseñaHash { get; private set; }
+        public string ContraseñaHash { get; private set; } = null!;
 
         public DateTime FechaRegistro { get; private set; }
 
-        public string Rol { get; private set; }
+        public string Rol { get; private set; } = null!;   
 
         private Usuario() { }
 
