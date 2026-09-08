@@ -20,13 +20,13 @@ namespace Infrastructure.Seed
 
             var usuarios = new List<Usuario>
             {
-                new Usuario("vendedor@test.com","Vendedor", "hashedpassword1", fecha, "Vendedor"),
+                new Usuario("vendedor@test.com","Vendedor", "123456", fecha, "Vendedor"),
 
-                new Usuario("comprador1@test.com","Comprador Uno", "hashedpassword2", fecha, "Comprador"),
+                new Usuario("comprador1@test.com","Comprador Uno", "123456", fecha, "Comprador"),
 
-                new Usuario("comprador2@test.com","Comprador Dos", "hashedpassword3", fecha, "Comprador"),
+                new Usuario("comprador2@test.com","Comprador Dos", "123456", fecha, "Comprador"),
 
-                new Usuario("sinfondos@test.com","Sinfondos", "hashedpassword4", fecha, "Sinfondos")
+                new Usuario("sinfondos@test.com","Sinfondos", "123456", fecha, "Sinfondos")
             };
             context.Usuarios.AddRange(usuarios);
             context.SaveChanges();
