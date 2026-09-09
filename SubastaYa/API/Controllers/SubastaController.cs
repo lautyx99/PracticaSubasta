@@ -1,4 +1,6 @@
-﻿using Application.DTOs.Subasta;
+﻿using Application.DTOs.Puja;
+using Application.DTOs.Subasta;
+using Application.UseCases.Pujas;
 using Application.UseCases.Subastas;
 using Domain.Entities;
 using Domain.Interfaces;
@@ -21,12 +23,15 @@ namespace API.Controllers
 
         private readonly ObtenerSubastasActivas obtenerSubastasActivas;
 
-        public SubastaController(ObtenerSubasta obtenerSubasta, ObtenerSubastaPorId obtenerSubastaPorId, CrearSubasta crearSubasta, ObtenerSubastasActivas obtenerSubastasActivas)
+        private readonly RealizarPuja realizarPuja;
+
+        public SubastaController(ObtenerSubasta obtenerSubasta, ObtenerSubastaPorId obtenerSubastaPorId, CrearSubasta crearSubasta, ObtenerSubastasActivas obtenerSubastasActivas, RealizarPuja realizarPuja)
         {
             this.obtenerSubasta = obtenerSubasta;
             this.obtenerSubastaPorId = obtenerSubastaPorId;
             this.crearSubasta = crearSubasta;
             this.obtenerSubastasActivas = obtenerSubastasActivas;
+            this.realizarPuja = realizarPuja;
 
         }
 
@@ -59,6 +64,16 @@ namespace API.Controllers
 
 
 
+        // GET /api/v1/subastas/{subastaId}/pujas
+        [HttpGet("{subastaId:int}/pujas")]
+        public async Task<ActionResult> GetPujasPorSubasta([FromRoute] int subastaId)
+        {
+            // Delegación al Caso de Uso ObtenerHistorialPujas...
+            return Ok();
+        }
+
+
+
         [HttpPost]
         public async Task<ActionResult<SubastaDto>> CreateSubasta([FromBody] CrearSubastaDto subastaDto)
         {
@@ -73,6 +88,17 @@ namespace API.Controllers
             return CreatedAtAction(nameof(GetById), new { id = nuevaSubasta.Id }, nuevaSubasta);
         }
 
-      
+
+        // POST /api/v1/subastas/{subastaId}/pujas
+        [HttpPost("{subastaId:int}/pujas")]
+        public async Task<ActionResult<PujaResultadoDto>> RegistrarPuja(
+            [FromRoute] int subastaId,
+            [FromBody] CrearPujaDto dto)
+        {
+            var resultado = await realizarPuja.ExecuteAsync(subastaId, dto);
+            return CreatedAtAction(nameof(GetPujasPorSubasta), new { subastaId = subastaId }, resultado);
+        }
+
+
     }
 }

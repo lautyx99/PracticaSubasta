@@ -1,3 +1,5 @@
+using API.Services;
+using Application.Interfaces;
 using Domain.Interfaces;
 using Infrastructure;
 using Infrastructure.Repositories;
@@ -56,6 +58,9 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     });
 
 builder.Services.AddAuthorization();
+
+builder.Services.AddSignalR();
+builder.Services.AddScoped<INotificadorSubasta, SignalNotificadorSubasta>();
 
 
 var app = builder.Build();

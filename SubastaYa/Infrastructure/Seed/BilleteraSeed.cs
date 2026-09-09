@@ -20,10 +20,10 @@ namespace Infrastructure.Seed
 
             var billeteras = new List<Billetera>
         {
-            new Billetera(vendedor.Id, 0m, 0m, 0m, 1),                          // Saldo $0
-            new Billetera(comprador1.Id, 150000m, 45000m, 105000m, 1),           // Total 150k / Retenido 45k / Disp 105k
-            new Billetera(comprador2.Id, 200000m, 0m, 200000m, 1),               // Total 200k / Disp 200k
-            new Billetera(sinFondos.Id, 500m, 0m, 500m, 1)                       // Solo $500
+            new Billetera(vendedor.Id, 0m, 0m, 1),                          // Saldo $0
+            new Billetera(comprador1.Id, 150000m, 45000m, 1),           // Total 150k / Retenido 45k / Disp 105k
+            new Billetera(comprador2.Id, 200000m, 0m, 1),               // Total 200k / Disp 200k
+            new Billetera(sinFondos.Id, 500m, 0m, 1)                       // Solo $500
         };
 
             context.Billeteras.AddRange(billeteras);

@@ -10,5 +10,7 @@ namespace Domain.Interfaces
         Task<Puja?> GetByIdAsync(int id);
         Task<List<Puja>> GetBySubastaIdAsync(int subastaId);
         Task AddAsync(Puja puja);
+
+        Task <Puja?> GetUltimaPujaAsync(int subastaId);
     }
 }
