@@ -15,6 +15,22 @@ namespace Infrastructure.Configurations
 
             builder.HasKey(u => u.Id);
 
+            builder.HasMany(u => u.Subastas)
+                   .WithOne(s => s.Vendedor)
+                   .HasForeignKey(s => s.VendedorId)
+                   .OnDelete(DeleteBehavior.Restrict);
+
+            builder.HasMany(u => u.Pujas)
+                   .WithOne(p => p.Usuario)
+                   .HasForeignKey(p => p.CompradorId)
+                   .OnDelete(DeleteBehavior.Restrict);
+
+            builder.HasMany(u => u.AuditoriaLogs)
+                   .WithOne(a => a.Usuario)
+                   .HasForeignKey(a => a.UsuarioId)
+                   .OnDelete(DeleteBehavior.Restrict);
+
+
             builder.HasIndex(u => u.Email).IsUnique();
 
         }

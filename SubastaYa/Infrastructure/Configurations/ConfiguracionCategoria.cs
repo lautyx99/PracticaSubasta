@@ -14,6 +14,11 @@ namespace Infrastructure.Configurations
             // Configure the Categoria entity
 
             builder.HasKey(c => c.Id);
+
+            builder.HasMany(c => c.Subastas)
+                   .WithOne(s => s.Categoria)
+                   .HasForeignKey(s => s.CategoriaId)
+                   .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

@@ -15,9 +15,14 @@ namespace Infrastructure.Configurations
 
             builder.HasKey(b => b.Id);
 
-            builder.HasOne(u => u.Usuario)
-                .WithMany()
-                .HasForeignKey(u => u.UsuarioId)
+            builder.HasOne(b => b.Usuario)
+                .WithOne(u => u.Billetera)
+                .HasForeignKey<Billetera>(b => b.UsuarioId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.HasMany(b => b.Transacciones)
+                .WithOne(t => t.Billetera)
+                .HasForeignKey(t => t.BilleteraId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             builder.Property(x => x.SaldoTotal)

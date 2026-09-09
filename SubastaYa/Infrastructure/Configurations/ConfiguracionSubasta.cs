@@ -15,15 +15,15 @@ namespace Infrastructure.Configurations
 
             builder.HasKey(s => s.Id);
 
-            builder.HasOne(s => s.Vendedor)
-                .WithMany()
-                .HasForeignKey(s => s.VendedorId)
-                .OnDelete(DeleteBehavior.Restrict);
+            builder.HasMany(s => s.Pujas)
+                    .WithOne(p => p.Subasta)
+                    .HasForeignKey(p => p.SubastaId)
+                    .OnDelete(DeleteBehavior.Restrict);
 
-            builder.HasOne(s => s.Categoria)
-                .WithMany()
-                .HasForeignKey(s => s.CategoriaId)
-                .OnDelete(DeleteBehavior.Restrict);
+            builder.HasMany(s => s.Transacciones)
+                    .WithOne(t => t.Subasta)
+                    .HasForeignKey(t => t.SubastaId)
+                    .OnDelete(DeleteBehavior.Restrict);
 
             builder.Property(x => x.PrecioInicial)
                     .HasPrecision(18, 2);

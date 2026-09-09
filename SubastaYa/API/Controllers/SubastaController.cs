@@ -1,4 +1,5 @@
 ﻿using Application.DTOs.Subasta;
+using Application.UseCases.Subastas;
 using Domain.Entities;
 using Domain.Interfaces;
 using Microsoft.AspNetCore.Mvc;
@@ -12,90 +13,66 @@ namespace API.Controllers
     [Route("api/[controller]")]
     public class SubastaController : ControllerBase
     {
-        private readonly ISubastaRepository _repo;
+        private readonly ObtenerSubasta obtenerSubasta;
 
-        public SubastaController(ISubastaRepository repo)
+        private readonly ObtenerSubastaPorId obtenerSubastaPorId;
+
+        private readonly CrearSubasta crearSubasta;
+
+        private readonly ObtenerSubastasActivas obtenerSubastasActivas;
+
+        public SubastaController(ObtenerSubasta obtenerSubasta, ObtenerSubastaPorId obtenerSubastaPorId, CrearSubasta crearSubasta, ObtenerSubastasActivas obtenerSubastasActivas)
         {
-            _repo = repo;
+            this.obtenerSubasta = obtenerSubasta;
+            this.obtenerSubastaPorId = obtenerSubastaPorId;
+            this.crearSubasta = crearSubasta;
+            this.obtenerSubastasActivas = obtenerSubastasActivas;
+
         }
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<SubastaDto>>> GetAll()
         {
-            var subastas = await _repo.GetAllAsync();
+            var subastas = await obtenerSubasta.ExecuteAsync();
 
-            var result = subastas.Select(MapToDto);
-
-            return Ok(result);
+            return Ok(subastas);
         }
 
         [HttpGet("activas")]
         public async Task<ActionResult<IEnumerable<SubastaDto>>> GetActivas()
         {
-            var subastas = await _repo.GetActivasAsync();
+            var subastas = await obtenerSubastasActivas.ExecuteAsync();
 
-            return Ok(subastas.Select(MapToDto));
+            return Ok(subastas);
         }
 
         [HttpGet("{id:int}")]
         public async Task<ActionResult<SubastaDto>> GetById(int id)
         {
-            var subasta = await _repo.GetByIdAsync(id);
-            if (subasta == null)
-                return NotFound();
+            var subasta = await obtenerSubastaPorId.ExecuteAsync(id);
 
-            return Ok(MapToDto(subasta));
+            if (subasta == null)
+                return NotFound($"No se encontró la subasta con ID {id}.");
+
+            return Ok(subasta);
         }
 
 
 
         [HttpPost]
-        public async Task<ActionResult<SubastaDto>> CreateSubasta(SubastaDto subastaDto)
+        public async Task<ActionResult<SubastaDto>> CreateSubasta([FromBody] CrearSubastaDto subastaDto)
         {
-            // 1. Map DTO -> Entity
-            var subasta = MapToEntity(subastaDto);
-
-            // 2. Persist to database
-            await _repo.AddAsync(subasta);
-
-            // 3. Map Entity -> DTO for response
-            return CreatedAtAction(nameof(GetById), new { id = subasta.Id }, MapToDto(subasta));
-        }
-
-        // Entity -> DTO
-        private static SubastaDto MapToDto(Subasta s)
-        {
-            return new SubastaDto
+            if (subastaDto == null)
             {
-                Id = s.Id,
-                VendedorId = s.VendedorId,
-                VendedorNombre = s.Vendedor?.Nombre,
-                CategoriaId = s.CategoriaId,
-                CategoriaNombre = s.Categoria?.Nombre,
-                Titulo = s.Titulo,
-                Descripcion = s.Descripcion,
-                UrlImagen = s.UrlImagen,
-                PrecioInicial = s.PrecioInicial,
-                IncrementoMinimo = s.IncrementoMinimo,
-                FechaInicio = s.FechaInicio,
-                FechaFin = s.FechaFin,
-                Estado = s.Estado
-            };
+                return BadRequest("El cuerpo de la solicitud no puede estar vacío.");
+            }
+
+            var nuevaSubasta = await crearSubasta.ExecuteAsync(subastaDto);
+
+            // Devuelve 201 Created con la subasta generada
+            return CreatedAtAction(nameof(GetById), new { id = nuevaSubasta.Id }, nuevaSubasta);
         }
 
-        private static Subasta MapToEntity(SubastaDto dto)
-        {
-            return new Subasta(
-                dto.VendedorId,
-                dto.CategoriaId,
-                dto.Titulo,
-                dto.Descripcion,
-                dto.UrlImagen,
-                dto.PrecioInicial,
-                dto.IncrementoMinimo,
-                dto.FechaInicio,
-                dto.FechaFin
-            );
-        }
+      
     }
 }

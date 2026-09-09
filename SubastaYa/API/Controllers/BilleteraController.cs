@@ -1,4 +1,6 @@
 ﻿using Application.DTOs.Billetera;
+using Application.DTOs.Transaccion;
+using Application.UseCases.Billeteras;
 using Domain.Entities;
 using Domain.Interfaces;
 using Microsoft.AspNetCore.Mvc;
@@ -12,69 +14,62 @@ namespace API.Controllers
     [Route("api/[controller]")]
     public class BilleteraController : ControllerBase
     {
-        private readonly IBilleteraRepository _repo;
+    private readonly ObtenerBilletera _obtenerPerfilBilletera;
+    private readonly ObtenerMovimientos _obtenerMovimientosBilletera;
+    private readonly DepositarFondos _realizarDeposito;
 
-        public BilleteraController(IBilleteraRepository repo)
+    public BilleteraController(
+        ObtenerBilletera obtenerBilletera,
+        ObtenerMovimientos obtenerMovimientos,
+        DepositarFondos realizarDeposito)
+    {
+        _obtenerPerfilBilletera = obtenerBilletera;
+        _obtenerMovimientosBilletera = obtenerMovimientos;
+        _realizarDeposito = realizarDeposito;
+    }
+
+    // GET: api/billeteras?usuarioId=1
+    [HttpGet]
+    public async Task<ActionResult<BilleteraDto>> GetByUsuario([FromQuery] int usuarioId)
+    {
+        var billeteraDto = await _obtenerPerfilBilletera.ExecuteAsync(usuarioId);
+
+        if (billeteraDto == null)
         {
-            _repo = repo;
+            return NotFound($"No se encontró la billetera para el usuario con ID {usuarioId}.");
         }
 
-        [HttpGet]
-        public async Task<ActionResult<BilleteraDto>> GetByUsuario(int usuarioId)
-        {
-            var billetera = await _repo.GetByUsuarioIdAsync(usuarioId);
-            if (billetera == null)
-            {
-                return NotFound();
-            }
+        return Ok(billeteraDto);
+    }
 
-            var result = new BilleteraDto
-            {
-                Id = billetera.Id,
-                UsuarioId = billetera.UsuarioId,
-                SaldoTotal = billetera.SaldoTotal,
-                SaldoRetenido = billetera.SaldoRetenido,
-                SaldoDisponible = billetera.SaldoDisponible
-            };
-            return Ok(result);
-        }
+    // GET: api/billeteras/5/transacciones
+    [HttpGet("{billeteraId}/transacciones")]
+    public async Task<ActionResult<IEnumerable<TransaccionDto>>> GetTransacciones(int billeteraId)
+    {
+        var transacciones = await _obtenerMovimientosBilletera.ExecuteAsync(billeteraId);
 
-        // DTO exclusivo para la operación de depósito
-        public record DepositoDto(int UsuarioId, decimal Monto);
+        // Siempre retorna 200 OK (con elementos o un array vacío [])
+        return Ok(transacciones);
+    }
 
         [HttpPost("deposito")]
         public async Task<ActionResult<BilleteraDto>> DepositoFondos([FromBody] DepositoDto dto)
         {
             if (dto.Monto <= 0)
-                return BadRequest("El monto a depositar debe ser mayor a cero.");
-
-            // 1. Obtener la entidad real desde la base de datos
-            var billetera = await _repo.GetByUsuarioIdAsync(dto.UsuarioId);
-            if (billetera == null)
-                return NotFound("Billetera no encontrada.");
-
-            // 2. Aplicar la regla de negocio (sumar el monto)
-            billetera.Depositar(dto.Monto); // Lógica encapsulada dentro de la Entidad Billetera
-
-            // 3. Guardar cambios en el repositorio
-            await _repo.UpdateAsync(billetera);
-
-            // 4. Retornar 200 OK con el DTO actualizado
-            return Ok(MapToDto(billetera));
-        }
-
-
-        private static BilleteraDto MapToDto(Billetera billetera)
-        {
-            return new BilleteraDto
             {
-                Id = billetera.Id,
-                UsuarioId = billetera.UsuarioId,
-                SaldoTotal = billetera.SaldoTotal,
-                SaldoRetenido = billetera.SaldoRetenido,
-                SaldoDisponible = billetera.SaldoDisponible,
-                Version = billetera.Version 
-            };
+                return BadRequest("El monto a depositar debe ser mayor a cero.");
+            }
+
+            // Se pasa el objeto dto completo al caso de uso
+            var billeteraActualizada = await _realizarDeposito.ExecuteAsync(dto);
+
+            if (billeteraActualizada == null)
+            {
+                return NotFound($"No se encontró la billetera asociada al usuario con ID {dto.UsuarioId}.");
+            }
+
+            return Ok(billeteraActualizada);
         }
     }
-}
+    }
+

@@ -1,4 +1,5 @@
 ﻿using Application.DTOs.Puja;
+using Application.UseCases.Pujas;
 using Domain.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -11,27 +12,19 @@ namespace API.Controllers
     [Route("api/[controller]")]
     public class PujaController : ControllerBase
     {
-        private readonly IPujaRepository _repo;
+        private readonly ObtenerPuja obtenerPuja;
 
-        public PujaController(IPujaRepository repo)
+        public PujaController(ObtenerPuja obtenerPuja)
         {
-            _repo = repo;
+            this.obtenerPuja = obtenerPuja;
         }
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<PujaDto>>> GetBySubasta(int subastaId)
         {
-            var pujas = await _repo.GetBySubastaIdAsync(subastaId);
+            var pujas = await obtenerPuja.ExecuteAsync(subastaId);
 
-            var result = pujas.Select(p => new PujaDto
-            {
-                Id = p.Id,
-                SubastaId = p.SubastaId,
-                CompradorId = p.CompradorId,
-                Monto = p.Monto,
-                FechaPuja = p.Fecha_Puja
-            });
-            return Ok(result);
+            return Ok(pujas);
         }
     }
 }

@@ -30,13 +30,18 @@ namespace Domain.Entities
 
         public DateTime FechaFinOriginal { get; private set; }
 
-        public string Estado { get; private set; } = null!;
+        public EstadoSubasta Estado { get; private set; } 
 
         public int Version { get; private set; }
 
         public virtual Usuario Vendedor { get; private set; } = null!;
 
         public virtual Categoria Categoria { get; private set; } = null!;
+
+        public virtual ICollection<TransaccionLedger> Transacciones { get; private set; } = new List<TransaccionLedger>();
+
+        public virtual ICollection<Puja> Pujas { get; private set; } = new List<Puja>();
+
 
         private Subasta()
         {
@@ -55,7 +60,7 @@ namespace Domain.Entities
             FechaInicio = fechaInicio;
             FechaFin = fechaFin;
             FechaFinOriginal = fechaFin;
-            Estado = "Activa";
+            Estado = EstadoSubasta.Activa;
             Version = 1;
         }
 
@@ -63,24 +68,33 @@ namespace Domain.Entities
 
         public void MarcarComoFinalizada()
         {
-            Estado = "Finalizada";
+            Estado = EstadoSubasta.Finalizada;
         }
 
         public void MarcarComoDesierta()
         {
-            Estado = "Desierta";
+            Estado = EstadoSubasta.Desierta;
         }
 
         public void MarcarComoProxima()
         {
-            Estado = "Proxima";
+            Estado = EstadoSubasta.Proxima;
         }
 
         public void ExtenderTiempo(DateTime nuevaFechaFin)
         {
+            if (nuevaFechaFin <= FechaFin)
+            {
+                throw new ArgumentException("La nueva fecha de fin debe ser posterior a la fecha actual de cierre.", nameof(nuevaFechaFin));
+            }
+
             FechaFin = nuevaFechaFin;
             Version++;
         }
 
+        public bool EstaActiva() =>
+        Estado == EstadoSubasta.Activa
+            && DateTime.UtcNow >= FechaInicio
+            && DateTime.UtcNow <= FechaFin;
     }
 }

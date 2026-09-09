@@ -8,6 +8,9 @@ namespace Domain.Interfaces
     public interface IBilleteraRepository
     {
         Task<Billetera?> GetByUsuarioIdAsync(int usuarioId);
+
+        Task<Billetera?> GetByIdWithTransaccionesAsync(int billeteraId);
+
         Task UpdateAsync(Billetera billetera);
     }
 }
