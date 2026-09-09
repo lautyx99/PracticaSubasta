@@ -32,7 +32,14 @@ namespace Infrastructure.Repositories
         public async Task AddAsync(Puja puja)
         {
             await _context.Pujas.AddAsync(puja);
-            await _context.SaveChangesAsync();
+        }
+
+        public async Task<Puja?> GetUltimaPujaAsync(int subastaId)
+        {
+            return await _context.Pujas
+                 .Where(p => p.SubastaId == subastaId)
+                 .OrderByDescending(p => p.Fecha_Puja) // O por p.Id descendente
+                 .FirstOrDefaultAsync();
         }
     }
 }

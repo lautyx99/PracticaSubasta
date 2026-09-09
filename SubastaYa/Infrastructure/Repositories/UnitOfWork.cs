@@ -1,4 +1,5 @@
 ﻿using Domain.Interfaces;
+using Microsoft.EntityFrameworkCore.Storage;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -17,6 +18,11 @@ namespace Infrastructure.Repositories
         public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {
             return await _context.SaveChangesAsync(cancellationToken);
+        }
+
+        public async Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default)
+        {
+            return await _context.Database.BeginTransactionAsync(cancellationToken);
         }
     }
 }

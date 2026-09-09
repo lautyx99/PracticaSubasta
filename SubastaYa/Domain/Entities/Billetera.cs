@@ -16,21 +16,21 @@ namespace Domain.Entities
 
         public decimal SaldoRetenido { get; private set; }
 
-        public decimal SaldoDisponible { get; private set; }
-
         public int Version { get; private set; }
+
+        public decimal SaldoDisponible => SaldoTotal - SaldoRetenido;
+
         public virtual Usuario Usuario { get; private set; } = null!;
 
         public virtual ICollection<TransaccionLedger> Transacciones { get; private set; } = new List<TransaccionLedger>();
 
         private Billetera() { }
 
-        public Billetera(int usuarioId, decimal saldoTotal, decimal saldoRetenido, decimal saldoDisponible, int version)
+        public Billetera(int usuarioId, decimal saldoTotal, decimal saldoRetenido, int version)
         {
             UsuarioId = usuarioId;
             SaldoTotal = saldoTotal;
             SaldoRetenido = saldoRetenido;
-            SaldoDisponible = saldoDisponible;
             Version = version;
         }
 
@@ -39,14 +39,37 @@ namespace Domain.Entities
         {
             if (monto <= 0)
             {
-                throw new ArgumentException("El monto a depositar debe ser mayor a cero.", nameof(monto));
+                throw new ArgumentException("[CODE-ERROR] - El monto a depositar debe ser mayor a cero.", nameof(monto));
             }
 
-            // Reglas financieras
+            // Al incrementar el SaldoTotal, el SaldoDisponible aumenta automáticamente
             SaldoTotal += monto;
-            SaldoDisponible += monto;
 
-            // Control de concurrencia optimista (si lo manejas manualmente)
+            // Control de concurrencia optimista
+            Version++;
+        }
+
+        public void RetenerFondos(decimal monto)
+        {
+            if (monto <= 0)
+                throw new ArgumentException("[CODE-ERROR] - El monto a retener debe ser mayor a cero.", nameof(monto));
+
+            if (SaldoDisponible < monto)
+                throw new InvalidOperationException("[CODE-ERROR] - Saldo disponible insuficiente para realizar la retención.");
+
+            SaldoRetenido += monto;
+            Version++;
+        }
+
+        public void LiberarFondos(decimal monto)
+        {
+            if (monto <= 0)
+                throw new ArgumentException("[CODE-ERROR] - El monto a liberar debe ser mayor a cero.", nameof(monto));
+
+            if (SaldoRetenido < monto)
+                throw new InvalidOperationException("[CODE-ERROR] - Inconsistencia contable: Intentando liberar mas saldo del retenido.");
+
+            SaldoRetenido -= monto;
             Version++;
         }
     }
