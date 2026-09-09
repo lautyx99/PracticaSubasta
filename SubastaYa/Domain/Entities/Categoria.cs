@@ -14,6 +14,8 @@ namespace Domain.Entities
 
         public string UrlIcono { get; private set; } = null!;
 
+        public virtual ICollection<Subasta> Subastas { get; private set; } = new List<Subasta>();
+
 
         private Categoria() { }
 

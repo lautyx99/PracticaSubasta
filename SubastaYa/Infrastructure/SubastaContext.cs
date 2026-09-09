@@ -25,6 +25,10 @@ namespace Infrastructure
         {
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(SubastaContext).Assembly);
             base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<Subasta>()
+                .Property(s => s.Estado)
+                .HasConversion<string>(); // Configura la conversión de enum a string
         }
 
     }

@@ -1,4 +1,5 @@
-﻿using Domain.Entities;
+﻿using Domain;
+using Domain.Entities;
 using Domain.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -34,10 +35,13 @@ namespace Infrastructure.Repositories
 
         public async Task<List<Subasta>> GetActivasAsync()
         {
+            var ahora = DateTime.UtcNow;
+
             return await _context.Subastas
-                .Include(s => s.Vendedor)
-                .Include(s => s.Categoria)
-                .Where(s => s.Estado == "Activa")
+                .Where(s => s.Estado == EstadoSubasta.Activa
+                         && s.FechaInicio <= ahora
+                         && s.FechaFin >= ahora)
+                .AsNoTracking()
                 .ToListAsync();
         }
 

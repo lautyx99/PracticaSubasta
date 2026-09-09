@@ -22,6 +22,13 @@ namespace Infrastructure.Repositories
                 .FirstOrDefaultAsync(b => b.UsuarioId == usuarioId);
         }
 
+        public async Task<Billetera?> GetByIdWithTransaccionesAsync(int billeteraId)
+        {
+            return await _context.Billeteras
+                .Include(b => b.Transacciones)
+                .FirstOrDefaultAsync(b => b.Id == billeteraId);
+        }
+
         public async Task UpdateAsync(Billetera billetera)
         {
             _context.Billeteras.Update(billetera);

@@ -6,22 +6,24 @@ using System.Text;
 
 namespace Application.UseCases.Subastas
 {
-    public class ObtenerSubasta
+    public class ObtenerSubastasActivas
     {
         private readonly ISubastaRepository _subastaRepository;
 
-        public ObtenerSubasta(ISubastaRepository subastaRepository)
+        public ObtenerSubastasActivas(ISubastaRepository subastaRepository)
         {
             _subastaRepository = subastaRepository;
         }
+
         public async Task<IEnumerable<SubastaDto>> ExecuteAsync()
         {
-            var subastas = await _subastaRepository.GetAllAsync();
+            var subastas = await _subastaRepository.GetActivasAsync();
 
-            if (subastas == null)
+            if (subastas == null || !subastas.Any())
             {
                 return Enumerable.Empty<SubastaDto>();
             }
+
             return subastas.Select(s => new SubastaDto
             {
                 Id = s.Id,
@@ -32,6 +34,7 @@ namespace Application.UseCases.Subastas
                 FechaInicio = s.FechaInicio,
                 FechaFin = s.FechaFin
             });
+
         }
     }
 }

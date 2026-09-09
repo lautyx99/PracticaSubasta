@@ -21,6 +21,8 @@ namespace Domain.Entities
         public int Version { get; private set; }
         public virtual Usuario Usuario { get; private set; } = null!;
 
+        public virtual ICollection<TransaccionLedger> Transacciones { get; private set; } = new List<TransaccionLedger>();
+
         private Billetera() { }
 
         public Billetera(int usuarioId, decimal saldoTotal, decimal saldoRetenido, decimal saldoDisponible, int version)

@@ -20,6 +20,14 @@ namespace Domain.Entities
 
         public string Rol { get; private set; } = null!;   
 
+        public virtual Billetera Billetera { get; private set; } = null!;
+
+        public virtual ICollection<Subasta> Subastas { get; private set; } = new List<Subasta>();
+
+        public virtual ICollection<Puja> Pujas { get; private set; } = new List<Puja>();
+
+        public virtual ICollection<AuditoriaLog> AuditoriaLogs { get; private set; } = new List<AuditoriaLog>();
+
         private Usuario() { }
 
         public Usuario(string email, string nombre, string contraseñaHash, DateTime fechaRegistro, string rol)

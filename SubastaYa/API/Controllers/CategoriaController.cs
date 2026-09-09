@@ -1,4 +1,6 @@
 ﻿using Application.DTOs.Categoria;
+using Application.UseCases.Categorias;
+using Domain.Entities;
 using Domain.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -11,46 +13,35 @@ namespace API.Controllers
     [Route("api/[controller]")]
     public class CategoriaController : ControllerBase
     {
-        private readonly ICategoriaRepository _repo;
+        private readonly  ObtenerCategoria obtenerCategoria;
 
-        public CategoriaController(ICategoriaRepository repo)
+        private readonly ObtenerCategoriaPorId obtenerCategoriaPorId;
+
+        public CategoriaController(ObtenerCategoria obtenerCategoria, ObtenerCategoriaPorId obtenerCategoriaPorId)
         {
-            _repo = repo;
+            this.obtenerCategoria = obtenerCategoria;
+            this.obtenerCategoriaPorId = obtenerCategoriaPorId;
         }
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<CategoriaDto>>> GetAll()
         {
-            var categorias = await _repo.GetAllAsync();
-            var categoriasDto = categorias.Select(c => new CategoriaDto
-            {
-                Id = c.Id,
-                Nombre = c.Nombre
-            });
-            return Ok(categoriasDto);
+            var categorias = await obtenerCategoria.ExecuteAsync();
+
+            return Ok(categorias);
         }
 
         [HttpGet("{id:int}")]
         public async Task<ActionResult<CategoriaDto>> GetById(int id)
         {
-            var categoria = await _repo.GetByIdAsync(id);
+            var categoria = await obtenerCategoriaPorId.ExecuteAsync(id);
+
             if (categoria == null)
             {
-                return NotFound();
+                return NotFound($"No se encontró la categoria para la categoria con ID {id}.");
             }
 
-            var categoriaDto = new CategoriaDto
-            {
-                Id = categoria.Id,
-                Nombre = categoria.Nombre
-            };
-
-            return Ok(new CategoriaDto
-            {
-                Id = categoria.Id,
-                Nombre = categoria.Nombre,
-                UrlIcono= categoria.UrlIcono
-            });
+            return Ok(categoria);
         }
 
     }
