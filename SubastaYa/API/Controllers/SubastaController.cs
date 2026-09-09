@@ -1,4 +1,5 @@
 ﻿using Application.DTOs.Subasta;
+using Domain.Entities;
 using Domain.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -22,7 +23,7 @@ namespace API.Controllers
         public async Task<ActionResult<IEnumerable<SubastaDto>>> GetAll()
         {
             var subastas = await _repo.GetAllAsync();
-            
+
             var result = subastas.Select(MapToDto);
 
             return Ok(result);
@@ -46,7 +47,23 @@ namespace API.Controllers
             return Ok(MapToDto(subasta));
         }
 
-        private static SubastaDto MapToDto(Domain.Entities.Subasta s)
+
+
+        [HttpPost]
+        public async Task<ActionResult<SubastaDto>> CreateSubasta(SubastaDto subastaDto)
+        {
+            // 1. Map DTO -> Entity
+            var subasta = MapToEntity(subastaDto);
+
+            // 2. Persist to database
+            await _repo.AddAsync(subasta);
+
+            // 3. Map Entity -> DTO for response
+            return CreatedAtAction(nameof(GetById), new { id = subasta.Id }, MapToDto(subasta));
+        }
+
+        // Entity -> DTO
+        private static SubastaDto MapToDto(Subasta s)
         {
             return new SubastaDto
             {
@@ -64,6 +81,21 @@ namespace API.Controllers
                 FechaFin = s.FechaFin,
                 Estado = s.Estado
             };
+        }
+
+        private static Subasta MapToEntity(SubastaDto dto)
+        {
+            return new Subasta(
+                dto.VendedorId,
+                dto.CategoriaId,
+                dto.Titulo,
+                dto.Descripcion,
+                dto.UrlImagen,
+                dto.PrecioInicial,
+                dto.IncrementoMinimo,
+                dto.FechaInicio,
+                dto.FechaFin
+            );
         }
     }
 }

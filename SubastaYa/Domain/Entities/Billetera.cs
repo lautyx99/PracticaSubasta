@@ -31,5 +31,21 @@ namespace Domain.Entities
             SaldoDisponible = saldoDisponible;
             Version = version;
         }
+
+        // Método para realizar el depósito de forma segura
+        public void Depositar(decimal monto)
+        {
+            if (monto <= 0)
+            {
+                throw new ArgumentException("El monto a depositar debe ser mayor a cero.", nameof(monto));
+            }
+
+            // Reglas financieras
+            SaldoTotal += monto;
+            SaldoDisponible += monto;
+
+            // Control de concurrencia optimista (si lo manejas manualmente)
+            Version++;
+        }
     }
 }

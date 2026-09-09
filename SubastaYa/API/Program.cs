@@ -60,12 +60,8 @@ builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
-
-app.MapControllers();
-
 //JWT
 app.UseAuthentication();
-app.UseAuthorization();
 
 
 // Configuración de Swagger
