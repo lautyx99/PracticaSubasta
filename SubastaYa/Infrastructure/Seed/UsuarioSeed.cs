@@ -1,4 +1,5 @@
 ﻿using Domain.Entities;
+using Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System;
@@ -9,25 +10,53 @@ namespace Infrastructure.Seed
 {
     public class UsuarioSeed 
     {
-       public static void Seed(SubastaContext context)
+        public static void Seed(SubastaContext context)
         {
             if (context.Usuarios.Any())
             {
                 return; // Los usuarios ya han sido sembrados
             }
 
-            var fecha = DateTime.Now;
+            var fecha = DateTime.UtcNow;
+
+            // Password por defecto hasheada para todos los usuarios de prueba
+            string contraseñaHash = BCrypt.Net.BCrypt.HashPassword("123456");
 
             var usuarios = new List<Usuario>
             {
-                new Usuario("vendedor@test.com","Vendedor", "123456", fecha, "Vendedor"),
+                new Usuario(
+                    nombre: "Vendedor Test",
+                    email: "vendedor@test.com",
+                    contraseñaHash: contraseñaHash,
+                    rol: RolUsuario.Vendedor,
+                    fechaRegistro: fecha
+                ),
 
-                new Usuario("comprador1@test.com","Comprador Uno", "123456", fecha, "Comprador"),
+                new Usuario(
+                    nombre: "Comprador Uno",
+                    email: "comprador1@test.com",
+                    contraseñaHash: contraseñaHash,
+                    rol: RolUsuario.Comprador,
+                    fechaRegistro: fecha
+                ),
 
-                new Usuario("comprador2@test.com","Comprador Dos", "123456", fecha, "Comprador"),
+                new Usuario(
+                    nombre: "Comprador Dos",
+                    email: "comprador2@test.com",
+                    contraseñaHash: contraseñaHash,
+                    rol: RolUsuario.Comprador,
+                    fechaRegistro: fecha
+                ),
 
-                new Usuario("sinfondos@test.com","Sinfondos", "123456", fecha, "Sinfondos")
+                new Usuario(
+                    nombre: "Sinfondos",
+                    email: "sinfondos@test.com",
+                    contraseñaHash: contraseñaHash,
+                    rol: RolUsuario.Comprador,
+                    fechaRegistro: fecha
+                )
             };
+
             context.Usuarios.AddRange(usuarios);
             context.SaveChanges();
         }

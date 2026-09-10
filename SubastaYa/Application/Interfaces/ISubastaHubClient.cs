@@ -15,7 +15,9 @@ namespace Application.Interfaces
 
             // Actualiza el estado del temporizador o la finalización de la subasta
             Task EstadoSubastaActualizado(int subastaId, string estado);
-        
+
+            Task SubastaFinalizada(int? ganadorId, decimal? precioFinal);
+
     }
 
 }

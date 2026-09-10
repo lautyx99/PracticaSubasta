@@ -72,5 +72,21 @@ namespace Domain.Entities
             SaldoRetenido -= monto;
             Version++;
         }
+
+        // Método para procesar el débito del comprador ganador
+        public void ConfirmarDebito(decimal monto)
+        {
+            if (SaldoRetenido < monto)
+                throw new InvalidOperationException("Saldo retenido insuficiente para confirmar débito.");
+
+            SaldoRetenido -= monto;
+            SaldoTotal -= monto;
+        }
+
+        // Método para acreditar el saldo al vendedor
+        public void AcreditarVenta(decimal monto)
+        {
+            SaldoTotal += monto;
+        }
     }
 }
