@@ -7,6 +7,8 @@ namespace Domain.Interfaces
 {
     public interface IAuditoriaRepository
     {
-        Task<AuditoriaLog> AddAsync(AuditoriaLog auditoriaLog);
+        Task AddAsync(AuditoriaLog auditoria);
+
+        Task<IEnumerable<AuditoriaLog>> ObtenerPorEntidadAsync(string entidad, int entidadId);
     }
 }

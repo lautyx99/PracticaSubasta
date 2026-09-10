@@ -30,9 +30,14 @@ namespace Domain.Entities
 
         public DateTime FechaFinOriginal { get; private set; }
 
+        public bool Finalizada { get; private set; }
+
         public EstadoSubasta Estado { get; private set; } 
 
         public int Version { get; private set; }
+
+        public int? GanadorId { get; private set; }
+        public decimal? PrecioFinal { get; private set; }
 
         public virtual Usuario Vendedor { get; private set; } = null!;
 
@@ -66,9 +71,11 @@ namespace Domain.Entities
 
         // Métodos de dominio
 
-        public void MarcarComoFinalizada()
+        public void MarcarComoFinalizada(int? ganadorId, decimal? precioFinal)
         {
-            Estado = EstadoSubasta.Finalizada;
+            Finalizada = true;
+            GanadorId = ganadorId;
+            PrecioFinal = precioFinal;
         }
 
         public void MarcarComoDesierta()

@@ -12,11 +12,32 @@ namespace Infrastructure.Seed
             if (context.Subastas.Any())
                 return;
 
-            var vendedor = context.Usuarios.First(u => u.Email == "vendedor@test.com");
-            var tecnologia = context.Categorias.First(c => c.Nombre == "Tecnología");
-            var coleccionables = context.Categorias.First(c => c.Nombre == "Coleccionables");
-            var indumentaria = context.Categorias.First(c => c.Nombre == "Indumentaria");
-            var vehiculos = context.Categorias.First(c => c.Nombre == "Vehículos");
+            // 1. Obtener los usuarios de prueba requeridos (de forma segura)
+            var vendedor = context.Usuarios.FirstOrDefault(u => u.Email.ToLower() == "vendedor@test.com")
+                        ?? context.Usuarios.OrderBy(u => u.Id).FirstOrDefault();
+
+            var comprador = context.Usuarios.FirstOrDefault(u => u.Email.ToLower() == "comprador@test.com")
+                         ?? context.Usuarios.Skip(1).OrderBy(u => u.Id).FirstOrDefault()
+                         ?? vendedor;
+
+
+            // 2. Obtener las categorías (usando FirstOrDefault con fallback a la primera categoría disponible)
+            var tecnologia = context.Categorias.FirstOrDefault(c => c.Nombre == "Tecnología")
+                          ?? context.Categorias.OrderBy(c => c.Id).FirstOrDefault();
+
+            var coleccionables = context.Categorias.FirstOrDefault(c => c.Nombre == "Coleccionables")
+                             ?? context.Categorias.OrderBy(c => c.Id).FirstOrDefault();
+
+            var indumentaria = context.Categorias.FirstOrDefault(c => c.Nombre == "Indumentaria")
+                            ?? context.Categorias.OrderBy(c => c.Id).FirstOrDefault();
+
+            var vehiculos = context.Categorias.FirstOrDefault(c => c.Nombre == "Vehículos")
+                         ?? context.Categorias.OrderBy(c => c.Id).FirstOrDefault();
+
+            if (vendedor == null || comprador == null || tecnologia == null || coleccionables == null || indumentaria == null || vehiculos == null)
+            {
+                return;
+            }
 
             var ahora = DateTime.UtcNow;
 
@@ -48,15 +69,19 @@ namespace Infrastructure.Seed
                 "Notebook Gamer", "Subasta vencida con ganador", urlImagen: null,
                 40000m, 2000m,
                 ahora.AddHours(-5), ahora.AddMinutes(-10));
-            subastaVencidaGanador.MarcarComoFinalizada();
 
-            // 5. Vencida desierta
+            // Marcar como finalizada asociando el ID del comprador y el precio final
+            subastaVencidaGanador.MarcarComoFinalizada(ganadorId: comprador.Id, precioFinal: 45000m);
+
+            // 5. Vencida desierta (Sin ofertas)
             var subastaDesierta = new Subasta(
                 vendedor.Id, vehiculos.Id,
                 "Bicicleta Mountain Bike", "Subasta desierta", urlImagen: null,
                 25000m, 1000m,
                 ahora.AddHours(-5), ahora.AddMinutes(-10));
-            subastaDesierta.MarcarComoDesierta();
+
+            // Finalizar sin ganador ni precio final
+            subastaDesierta.MarcarComoFinalizada(ganadorId: null, precioFinal: null);
 
             context.Subastas.AddRange(
                 subastaEstandar,
@@ -67,5 +92,6 @@ namespace Infrastructure.Seed
 
             context.SaveChanges();
         }
+    
     }
-    }
+}

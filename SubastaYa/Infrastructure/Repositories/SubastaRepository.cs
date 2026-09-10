@@ -62,5 +62,14 @@ namespace Infrastructure.Repositories
             _context.Subastas.Remove(subasta);
             await _context.SaveChangesAsync();
         }
+
+        public async Task<List<Subasta>> GetSubastasExpiradasSinFinalizarAsync(CancellationToken cancellationToken = default)
+        {
+            var fechaActual = DateTime.UtcNow;
+
+            return await _context.Subastas
+                .Where(s => s.FechaFin <= fechaActual && !s.Finalizada) // Ajusta 'Finalizada' según la propiedad o Enum de estado de tu Entidad
+                .ToListAsync(cancellationToken);
+        }
     }
 }

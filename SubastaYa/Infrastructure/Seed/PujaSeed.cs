@@ -11,12 +11,27 @@ namespace Infrastructure.Seed
         {
             if (context.Pujas.Any())
                 return;
+            // 1. Obtener los usuarios de prueba de forma segura
+            var comprador1 = context.Usuarios.FirstOrDefault(u => u.Email.ToLower() == "comprador1@test.com")
+                          ?? context.Usuarios.OrderBy(u => u.Id).FirstOrDefault();
 
-            var comprador1 = context.Usuarios.First(u => u.Email == "comprador1@test.com");
-            var comprador2 = context.Usuarios.First(u => u.Email == "comprador2@test.com");
+            var comprador2 = context.Usuarios.FirstOrDefault(u => u.Email.ToLower() == "comprador2@test.com")
+                          ?? context.Usuarios.Skip(1).OrderBy(u => u.Id).FirstOrDefault()
+                          ?? comprador1;
 
-            var subastaEstandar = context.Subastas.First(s => s.Titulo == "iPhone 15 Pro");
-            var subastaVencidaGanador = context.Subastas.First(s => s.Titulo == "Notebook Gamer");
+            // 2. Obtener las subastas requeridas de forma segura
+            var subastaEstandar = context.Subastas.FirstOrDefault(s => s.Titulo == "iPhone 15 Pro")
+                               ?? context.Subastas.OrderBy(s => s.Id).FirstOrDefault();
+
+            var subastaVencidaGanador = context.Subastas.FirstOrDefault(s => s.Titulo == "Notebook Gamer")
+                                     ?? context.Subastas.Skip(1).OrderBy(s => s.Id).FirstOrDefault()
+                                     ?? subastaEstandar;
+
+            // Guard Clause unificada para eliminar advertencias CS8602
+            if (comprador1 == null || comprador2 == null || subastaEstandar == null || subastaVencidaGanador == null)
+            {
+                return;
+            }
 
             var ahora = DateTime.UtcNow;
 

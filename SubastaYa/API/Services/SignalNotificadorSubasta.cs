@@ -25,5 +25,12 @@ namespace API.Services
             string grupo = $"Subasta_{subastaId}";
             await _hubContext.Clients.Group(grupo).TiempoSubastaExtendido(subastaId, nuevaFechaFin);
         }
+
+        public async Task NotificarSubastaFinalizadaAsync(int subastaId, int? ganadorId, decimal? precioFinal)
+        {
+            await _hubContext.Clients
+                .Group($"Subasta_{subastaId}")
+                .SubastaFinalizada(ganadorId, precioFinal);
+        }
     }
 }

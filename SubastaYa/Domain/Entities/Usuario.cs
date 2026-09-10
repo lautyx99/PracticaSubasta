@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Domain.Enums;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -18,7 +19,7 @@ namespace Domain.Entities
 
         public DateTime FechaRegistro { get; private set; }
 
-        public string Rol { get; private set; } = null!;   
+        public RolUsuario Rol { get; private set; }  
 
         public virtual Billetera Billetera { get; private set; } = null!;
 
@@ -30,7 +31,7 @@ namespace Domain.Entities
 
         private Usuario() { }
 
-        public Usuario(string email, string nombre, string contraseñaHash, DateTime fechaRegistro, string rol)
+        public Usuario(string email, string nombre, string contraseñaHash, DateTime fechaRegistro, RolUsuario rol)
         {
             Email = email;
             Nombre = nombre;
@@ -38,5 +39,7 @@ namespace Domain.Entities
             FechaRegistro = fechaRegistro;
             Rol = rol;
         }
+
+  
     }
 }

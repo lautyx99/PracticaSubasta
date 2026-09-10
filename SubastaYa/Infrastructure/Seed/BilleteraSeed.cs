@@ -12,11 +12,23 @@ namespace Infrastructure.Seed
             if (context.Billeteras.Any())
                 return;
 
-            // Ids según el orden en que se insertaron los usuarios
-            var vendedor = context.Usuarios.First(u => u.Email == "vendedor@test.com");
-            var comprador1 = context.Usuarios.First(u => u.Email == "comprador1@test.com");
-            var comprador2 = context.Usuarios.First(u => u.Email == "comprador2@test.com");
-            var sinFondos = context.Usuarios.First(u => u.Email == "sinfondos@test.com");
+            // Obtener usuarios de forma segura con fallback por posición
+            var vendedor = context.Usuarios.FirstOrDefault(u => u.Email.ToLower() == "vendedor@test.com")
+                        ?? context.Usuarios.OrderBy(u => u.Id).FirstOrDefault();
+
+            var comprador1 = context.Usuarios.FirstOrDefault(u => u.Email.ToLower() == "comprador1@test.com")
+                          ?? context.Usuarios.Skip(1).OrderBy(u => u.Id).FirstOrDefault()
+                          ?? vendedor;
+
+            var comprador2 = context.Usuarios.FirstOrDefault(u => u.Email.ToLower() == "comprador2@test.com")
+                          ?? context.Usuarios.Skip(2).OrderBy(u => u.Id).FirstOrDefault()
+                          ?? vendedor;
+
+            var sinFondos = context.Usuarios.FirstOrDefault(u => u.Email.ToLower() == "sinfondos@test.com")
+                         ?? context.Usuarios.Skip(3).OrderBy(u => u.Id).FirstOrDefault()
+                         ?? vendedor;
+
+            if (vendedor == null || comprador1 == null || comprador2 == null || sinFondos == null) return;
 
             var billeteras = new List<Billetera>
         {

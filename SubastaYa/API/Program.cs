@@ -1,10 +1,14 @@
+using API.Hubs;
 using API.Services;
+using Application;
 using Application.Interfaces;
+using Application.UseCases.Finalizacion;
 using Domain.Interfaces;
 using Infrastructure;
 using Infrastructure.Repositories;
 using Infrastructure.Seed;
 using Infrastructure.Services;
+using Infrastructure.Workers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -15,6 +19,12 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 
 builder.Services.AddControllers();
+
+
+// Registro automático de TODOS los Casos de Uso de Application
+builder.Services.AddApplicationServices();
+
+builder.Services.AddScoped<FinalizarSubastasExpiradas>();
 
 
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
@@ -30,6 +40,8 @@ builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 builder.Services.AddScoped<IPujaRepository, PujaRepository>();
 builder.Services.AddScoped<IBilleteraRepository, BilleteraRepository>();
 builder.Services.AddScoped<ICategoriaRepository, CategoriaRepository>();
+builder.Services.AddScoped<IAuditoriaRepository, AuditoriaRepository>();
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 // Configuración de Swagger
 builder.Services.AddEndpointsApiExplorer();
@@ -40,27 +52,59 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IAuthService, AuthService>();
 
 
-// Configuración de JWT
-var jwtKey = builder.Configuration["Jwt:Key"]!;
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
-    {
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-            ValidIssuer = builder.Configuration["Jwt:Issuer"],
-            ValidAudience = builder.Configuration["Jwt:Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
-        };
-    });
+
+
+// 1. Obtener clave secreta del appsettings.json
+var jwtSettings = builder.Configuration.GetSection("JwtSettings");
+var secretKey = jwtSettings["SecretKey"];
+
+// 2. Registrar servicios de Autenticación JWT
+builder.Services.AddAuthentication(options =>
+{
+options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+options.RequireHttpsMetadata = false; // Cambiar a true en producción
+options.SaveToken = true;
+options.TokenValidationParameters = new TokenValidationParameters
+{
+    ValidateIssuer = true,
+    ValidateAudience = true,
+    ValidateLifetime = true,
+    ValidateIssuerSigningKey = true,
+    ValidIssuer = jwtSettings["Issuer"],
+    ValidAudience = jwtSettings["Audience"],
+    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey!)),
+    ClockSkew = TimeSpan.Zero
+};
+
+ // 3. INTERCEPTOR CRÍTICO PARA SIGNALR (WebSockets)
+ options.Events = new JwtBearerEvents
+ {
+    OnMessageReceived = context =>
+     {
+       var accessToken = context.Request.Query["access_token"];
+
+       // Si la petición va hacia el Hub de SignalR, extraer el token del QueryString
+       var path = context.HttpContext.Request.Path;
+         if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/hubs/subasta"))
+          {
+            context.Token = accessToken;
+          }
+          return Task.CompletedTask;
+        }
+  };
+});
 
 builder.Services.AddAuthorization();
 
 builder.Services.AddSignalR();
 builder.Services.AddScoped<INotificadorSubasta, SignalNotificadorSubasta>();
+
+// Registrar el Worker Service en segundo plano
+builder.Services.AddHostedService<SubastaWorker>();
 
 
 var app = builder.Build();
@@ -68,6 +112,9 @@ var app = builder.Build();
 //JWT
 app.UseAuthentication();
 
+// Endpoint Routing de API y Hubs
+app.MapControllers();
+app.MapHub<SubastaHub>("/hubs/subasta");
 
 // Configuración de Swagger
 if (app.Environment.IsDevelopment())
@@ -76,15 +123,30 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI(); // Permite acceder a la interfaz en /swagger
 }
 
-//Seed de datos
+// ==========================================
+// SEED DE DATOS EN EL ARRANQUE DE LA APP
+// ==========================================
 using (var scope = app.Services.CreateScope())
 {
-    var context = scope.ServiceProvider.GetRequiredService<SubastaContext>();
+    var services = scope.ServiceProvider;
+    var logger = services.GetRequiredService<ILogger<Program>>();
 
-    // Opcional: aplica migraciones pendientes automáticamente
-    context.Database.Migrate();
+    try
+    {
+        var context = services.GetRequiredService<SubastaContext>();
 
-    SeedData.Initialize(context);
+        // 1. Aplica migraciones pendientes automáticamente
+        context.Database.Migrate();
+
+        // 2. Ejecuta el Seeder centralizado
+        SeedData.Initialize(context);
+
+        logger.LogInformation("[SEED] Base de datos migrada y sembrada correctamente.");
+    }
+    catch (Exception ex)
+    {
+        logger.LogError(ex, "[SEED-ERROR] Ocurrió un error al migrar o sembrar la base de datos.");
+    }
 }
 
 // Configure the HTTP request pipeline.
