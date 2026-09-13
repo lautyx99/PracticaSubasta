@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Application.DTOs.Puja;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -19,9 +20,11 @@ namespace Application.DTOs.Subasta
         public DateTime FechaInicio { get; set; }
         public DateTime FechaFin { get; set; }
         public string Estado { get; set; } = null!;
+        public int? GanadorId { get; set; }          
+        public decimal? PrecioFinal { get; set; }     
 
         public int Version { get; set; } // para control de concurrencia optimista
 
-        public decimal? MejorPuja { get; set; }      // opcional, útil para el front
+        public PujaDto? MejorPuja { get; set; }      // opcional, útil para el front
     }
 }

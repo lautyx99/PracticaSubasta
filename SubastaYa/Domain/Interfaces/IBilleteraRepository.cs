@@ -11,6 +11,6 @@ namespace Domain.Interfaces
 
         Task<Billetera?> GetByIdWithTransaccionesAsync(int billeteraId);
 
-        Task UpdateAsync(Billetera billetera);
+        Task UpdateAsync(Billetera billetera, CancellationToken cancellationToken);
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Application.DTOs.Subasta;
+using Application.Mappings;
 using Domain.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -15,25 +16,17 @@ namespace Application.UseCases.Subastas
             _subastaRepository = subastaRepository;
         }
 
-        public async Task<SubastaDto?> ExecuteAsync(int id)
+        public async Task<SubastaDto?> ExecuteAsync(int id, CancellationToken cancellationToken = default)
         {
-            var subasta = await _subastaRepository.GetByIdAsync(id);
+            var subasta = await _subastaRepository.GetByIdAsync(id, cancellationToken);
 
             if (subasta == null)
             {
                 return null;
             }
 
-            return new SubastaDto
-            {
-                Id = subasta.Id,
-                VendedorId = subasta.VendedorId,
-                CategoriaId = subasta.CategoriaId,
-                Titulo = subasta.Titulo,
-                Descripcion = subasta.Descripcion,
-                FechaInicio = subasta.FechaInicio,
-                FechaFin = subasta.FechaFin
-            };
+            // Usar el método de extensión que realiza la proyección completa
+            return subasta.ToDto();
         }
 
     }

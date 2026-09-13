@@ -12,11 +12,10 @@ namespace API.Controllers
 {
     [Authorize]
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/subastas/{subastaId}/pujas")] // <-- Ruta base estandarizada
     public class PujaController : ControllerBase
     {
         private readonly ObtenerPuja obtenerPuja;
-
         private readonly RealizarPuja realizarPujaUseCase;
 
         public PujaController(ObtenerPuja obtenerPuja, RealizarPuja realizarPujaUseCase)
@@ -25,33 +24,30 @@ namespace API.Controllers
             this.realizarPujaUseCase = realizarPujaUseCase;
         }
 
+        /// <summary>
+        /// GET: api/subastas/{subastaId}/pujas
+        /// </summary>
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<PujaDto>>> GetBySubasta(int subastaId)
+        public async Task<ActionResult<IEnumerable<PujaDto>>> GetBySubasta([FromRoute] int subastaId)
         {
             var pujas = await obtenerPuja.ExecuteAsync(subastaId);
-
             return Ok(pujas);
         }
 
-
         /// <summary>
-        /// Endpoint de consulta individual de la puja generada.
+        /// GET: api/subastas/{subastaId}/pujas/{pujaId}
         /// </summary>
         [HttpGet("{pujaId:int}")]
         [ProducesResponseType(typeof(PujaResultadoDto), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> ObtenerPujaPorId(int subastaId, int pujaId)
+        public async Task<IActionResult> ObtenerPujaPorId([FromRoute] int subastaId, [FromRoute] int pujaId)
         {
-            // Opcional: Implementar lectura de la puja guardada mediante un Query o Repositorio de lectura
             return Ok();
         }
 
-
         /// <summary>
-        /// Realiza una nueva oferta en una subasta activa.
+        /// POST: api/subastas/{subastaId}/pujas
         /// </summary>
-        /// <param name="subastaId">ID de la subasta objetivo.</param>
-        /// <param name="dto">Datos de la oferta (CompradorId, Monto).</param>
         [HttpPost]
         [ProducesResponseType(typeof(PujaResultadoDto), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -61,35 +57,28 @@ namespace API.Controllers
             [FromRoute] int subastaId,
             [FromBody] CrearPujaRequest request)
         {
-
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (!int.TryParse(userIdClaim, out int compradorId))
             {
                 return Unauthorized();
             }
 
-
-            // 2. Mapear al DTO del Caso de Uso asociando el ID seguro
             var dto = new CrearPujaDto
             {
                 CompradorId = compradorId,
                 Monto = request.Monto
             };
 
-            // Ejecutar el caso de uso orquestado (ACID, Locks, SignalR)
             PujaResultadoDto resultado = await realizarPujaUseCase.ExecuteAsync(subastaId, dto);
 
-            // Retornar 201 Created especificando la ruta para consultar la puja realizada
+            // Corregido: controllerName apunta a "Puja" para coincidir con PujaController
             return CreatedAtAction(
                 actionName: nameof(ObtenerPujaPorId),
-                controllerName: "Pujas",
+                controllerName: "Puja",
                 routeValues: new { subastaId = subastaId, pujaId = resultado.Id },
                 value: resultado);
         }
 
-        /// <summary>
-        /// DTO exclusivo para la Petición HTTP (solo recibe el Monto).
-        /// </summary>
         public record CrearPujaRequest(decimal Monto);
     }
 }

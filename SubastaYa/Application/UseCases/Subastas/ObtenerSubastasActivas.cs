@@ -1,4 +1,5 @@
 ﻿using Application.DTOs.Subasta;
+using Application.Mappings;
 using Domain.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -15,25 +16,16 @@ namespace Application.UseCases.Subastas
             _subastaRepository = subastaRepository;
         }
 
-        public async Task<IEnumerable<SubastaDto>> ExecuteAsync()
+        public async Task<IEnumerable<SubastaDto>> ExecuteAsync(CancellationToken cancellationToken = default)
         {
-            var subastas = await _subastaRepository.GetActivasAsync();
+            var subastas = await _subastaRepository.GetActivasAsync( cancellationToken);
 
             if (subastas == null || !subastas.Any())
             {
                 return Enumerable.Empty<SubastaDto>();
             }
 
-            return subastas.Select(s => new SubastaDto
-            {
-                Id = s.Id,
-                VendedorId = s.VendedorId,
-                CategoriaId = s.CategoriaId,
-                Titulo = s.Titulo,
-                Descripcion = s.Descripcion,
-                FechaInicio = s.FechaInicio,
-                FechaFin = s.FechaFin
-            });
+            return subastas.Select(s => s.ToDto());
 
         }
     }

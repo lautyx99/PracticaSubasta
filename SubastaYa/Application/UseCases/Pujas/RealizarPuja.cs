@@ -35,7 +35,7 @@ namespace Application.UseCases.Pujas
             this._notificadorSubasta = notificadorSubasta;  
         }
 
-        public async Task<PujaResultadoDto> ExecuteAsync(int subastaId, CrearPujaDto dto)
+        public async Task<PujaResultadoDto> ExecuteAsync(int subastaId, CrearPujaDto dto, CancellationToken cancellationToken = default)
         {
             ArgumentNullException.ThrowIfNull(dto);
 
@@ -45,7 +45,7 @@ namespace Application.UseCases.Pujas
             try
             {
                 // 1. Obtener Subasta
-                var subasta = await subastaRepository.GetByIdAsync(subastaId);
+                var subasta = await subastaRepository.GetByIdAsync(subastaId, cancellationToken);
                 if (subasta == null)
                 {
                     throw new KeyNotFoundException($"[CODE-ERROR] - La subasta con ID {subastaId} no existe.");
@@ -80,7 +80,7 @@ namespace Application.UseCases.Pujas
                     if (billeteraAnterior != null)
                     {
                         billeteraAnterior.LiberarFondos(pujaMax.Monto);
-                        await billeteraRepository.UpdateAsync(billeteraAnterior);
+                        await billeteraRepository.UpdateAsync(billeteraAnterior, cancellationToken);
                     }
                 }
 
@@ -92,7 +92,7 @@ namespace Application.UseCases.Pujas
                 }
 
                 billeteraNuevoLider.RetenerFondos(dto.Monto);
-                await billeteraRepository.UpdateAsync(billeteraNuevoLider);
+                await billeteraRepository.UpdateAsync(billeteraNuevoLider, cancellationToken);
 
                 // 6. Regla Anti-Sniping (Extensión de tiempo en los últimos 60 segundos)
                 bool tiempoExtendido = false;

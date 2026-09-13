@@ -74,6 +74,7 @@ namespace Domain.Entities
         public void MarcarComoFinalizada(int? ganadorId, decimal? precioFinal)
         {
             Finalizada = true;
+            Estado = EstadoSubasta.Finalizada;
             GanadorId = ganadorId;
             PrecioFinal = precioFinal;
         }

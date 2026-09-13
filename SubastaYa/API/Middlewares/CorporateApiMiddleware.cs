@@ -22,45 +22,104 @@ namespace API.Middlewares
             {
                 await _next(context);
             }
-            catch (DbUpdateConcurrencyException )
+            catch (DbUpdateConcurrencyException)
             {
-                // Manejo de Optimistic Locking -> 409 Conflict
-                context.Response.ContentType = "application/json";
-                context.Response.StatusCode = (int)HttpStatusCode.Conflict;
-
-                var problem = new
+                if (!context.Response.HasStarted)
                 {
-                    Status = 409,
-                    Title = "Conflicto de Concurrencia",
-                    Detail = "[CODE-ERROR] - La subasta o la billetera fue modificada por otra transaccion simultanea. Por favor, reintente."
-                };
+                    context.Response.Clear();
+                    context.Response.ContentType = "application/json";
+                    context.Response.StatusCode = (int)HttpStatusCode.Conflict;
 
-                await context.Response.WriteAsync(JsonSerializer.Serialize(problem));
+                    var problem = new
+                    {
+                        Status = 409,
+                        Title = "Conflicto de Concurrencia",
+                        Detail = "[CODE-ERROR] - La subasta o la billetera fue modificada por otra transaccion simultanea. Por favor, reintente."
+                    };
+
+                    await context.Response.WriteAsync(JsonSerializer.Serialize(problem));
+                }
+            }
+            catch (ArgumentException ex)
+            {
+                if (!context.Response.HasStarted)
+                {
+                    context.Response.Clear();
+                    context.Response.ContentType = "application/json";
+                    context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+
+                    var problem = new
+                    {
+                        Status = 400,
+                        Title = "Parámetro Inválido",
+                        Detail = ex.Message
+                    };
+
+                    await context.Response.WriteAsync(JsonSerializer.Serialize(problem));
+                }
             }
             catch (InvalidOperationException ex)
             {
-                context.Response.ContentType = "application/json";
-                context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                // AQUÍ VA LA VALIDACIÓN DE HasStarted Y Clear()
+                if (!context.Response.HasStarted)
+                {
+                    context.Response.Clear();
+                    context.Response.ContentType = "application/json";
+                    context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
 
-                var problem = new { Status = 400, Title = "Regla de Negocio Violada", Detail = ex.Message };
-                await context.Response.WriteAsync(JsonSerializer.Serialize(problem));
+                    var problem = new
+                    {
+                        Status = 400,
+                        Title = "Regla de Negocio Violada",
+                        Detail = ex.Message
+                    };
+
+                    await context.Response.WriteAsync(JsonSerializer.Serialize(problem));
+                }
             }
             catch (KeyNotFoundException ex)
             {
-                context.Response.ContentType = "application/json";
-                context.Response.StatusCode = (int)HttpStatusCode.NotFound;
+                if (!context.Response.HasStarted)
+                {
+                    context.Response.Clear();
+                    context.Response.ContentType = "application/json";
+                    context.Response.StatusCode = (int)HttpStatusCode.NotFound;
 
-                var problem = new { Status = 404, Title = "Recurso No Encontrado", Detail = ex.Message };
-                await context.Response.WriteAsync(JsonSerializer.Serialize(problem));
+                    var problem = new { Status = 404, Title = "Recurso No Encontrado", Detail = ex.Message };
+                    await context.Response.WriteAsync(JsonSerializer.Serialize(problem));
+                }
             }
             catch (Exception ex)
             {
-                context.Response.ContentType = "application/json";
-                context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                // LOG TEMPORAL PARA AUDITAR LA INNER EXCEPTION DE ENTITY FRAMEWORK
+                var innerMessage = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
+                Console.WriteLine($"[EF CORE ERROR]: {innerMessage}");
 
-                var problem = new { Status = 500, Title = "Error Interno", Detail = $"[CODE-ERROR] - {ex.Message}" };
-                await context.Response.WriteAsync(JsonSerializer.Serialize(problem));
+                if (!context.Response.HasStarted)
+                {
+                    context.Response.Clear();
+                    context.Response.ContentType = "application/json";
+                    context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+
+                    var problem = new { Status = 500, Title = "Error Interno", Detail = $"[CODE-ERROR] - {innerMessage}" };
+                    await context.Response.WriteAsync(JsonSerializer.Serialize(problem));
+                }
             }
+           /* catch (Exception ex)
+            {
+                if (!context.Response.HasStarted)
+                {
+                    context.Response.Clear();
+                    context.Response.ContentType = "application/json";
+                    context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+
+                    var problem = new { Status = 500, Title = "Error Interno", Detail = $"[CODE-ERROR] - {ex.Message}" };
+                    await context.Response.WriteAsync(JsonSerializer.Serialize(problem));
+                }
+            }
+
+
+            */
         }
     }
 }

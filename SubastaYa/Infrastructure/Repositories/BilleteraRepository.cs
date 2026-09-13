@@ -29,7 +29,7 @@ namespace Infrastructure.Repositories
                 .FirstOrDefaultAsync(b => b.Id == billeteraId);
         }
 
-        public async Task UpdateAsync(Billetera billetera)
+        public async Task UpdateAsync(Billetera billetera, CancellationToken cancellationToken= default)
         {
             _context.Billeteras.Update(billetera);
             await _context.SaveChangesAsync();

@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace Infrastructure.Persistence.Migrations
+namespace Infrastructure.Migrations
 {
     [DbContext(typeof(SubastaContext))]
     partial class SubastaContextModelSnapshot : ModelSnapshot
@@ -183,6 +183,7 @@ namespace Infrastructure.Persistence.Migrations
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal?>("PrecioFinal")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal>("PrecioInicial")
@@ -223,9 +224,6 @@ namespace Infrastructure.Persistence.Migrations
                     b.Property<int>("BilleteraId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("BilleteraId1")
-                        .HasColumnType("int");
-
                     b.Property<DateTime>("Fecha")
                         .HasColumnType("datetime2");
 
@@ -246,8 +244,6 @@ namespace Infrastructure.Persistence.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("BilleteraId");
-
-                    b.HasIndex("BilleteraId1");
 
                     b.HasIndex("SubastaId");
 
@@ -353,14 +349,10 @@ namespace Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Domain.Entities.TransaccionLedger", b =>
                 {
                     b.HasOne("Domain.Entities.Billetera", "Billetera")
-                        .WithMany()
+                        .WithMany("Transacciones")
                         .HasForeignKey("BilleteraId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-
-                    b.HasOne("Domain.Entities.Billetera", null)
-                        .WithMany("Transacciones")
-                        .HasForeignKey("BilleteraId1");
 
                     b.HasOne("Domain.Entities.Subasta", "Subasta")
                         .WithMany()
