@@ -31,6 +31,9 @@ namespace Infrastructure.Configurations
             builder.Property(x => x.IncrementoMinimo)
                    .HasPrecision(18, 2);
 
+            builder.Property(s => s.PrecioFinal)
+            .HasPrecision(18, 2);
+
             builder.Property(s => s.Version)
                     .IsConcurrencyToken(); // Habilita el Optimistic Locking en EF Core
 

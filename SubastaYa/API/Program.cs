@@ -1,8 +1,11 @@
 using API.Hubs;
+using API.Middlewares;
 using API.Services;
 using Application;
 using Application.Interfaces;
+using Application.UseCases.Billeteras;
 using Application.UseCases.Finalizacion;
+using Application.UseCases.Subastas;
 using Domain.Interfaces;
 using Infrastructure;
 using Infrastructure.Repositories;
@@ -23,6 +26,15 @@ builder.Services.AddControllers();
 
 // Registro automático de TODOS los Casos de Uso de Application
 builder.Services.AddApplicationServices();
+
+
+// Registro de Casos de Uso de Billetera
+builder.Services.AddScoped<ObtenerBilletera>();
+builder.Services.AddScoped<ObtenerMovimientos>();
+builder.Services.AddScoped<DepositarFondos>();
+
+// Registrar el Caso de Uso de CrearSubasta
+builder.Services.AddScoped<CrearSubasta>();
 
 builder.Services.AddScoped<FinalizarSubastasExpiradas>();
 
@@ -106,6 +118,14 @@ builder.Services.AddScoped<INotificadorSubasta, SignalNotificadorSubasta>();
 // Registrar el Worker Service en segundo plano
 builder.Services.AddHostedService<SubastaWorker>();
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("Front", policy =>
+        policy.WithOrigins("http://localhost:55976")
+              .AllowAnyHeader()
+              .AllowAnyMethod());
+});
+
 
 var app = builder.Build();
 
@@ -115,6 +135,9 @@ app.UseAuthentication();
 // Endpoint Routing de API y Hubs
 app.MapControllers();
 app.MapHub<SubastaHub>("/hubs/subasta");
+
+// 1. REGISTRAR TU MIDDLEWARE AL INICIO DEL PIPELINE
+app.UseMiddleware<CorporateApiMiddleware>();
 
 // Configuración de Swagger
 if (app.Environment.IsDevelopment())
@@ -148,6 +171,8 @@ using (var scope = app.Services.CreateScope())
         logger.LogError(ex, "[SEED-ERROR] Ocurrió un error al migrar o sembrar la base de datos.");
     }
 }
+
+app.UseCors("Front");
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

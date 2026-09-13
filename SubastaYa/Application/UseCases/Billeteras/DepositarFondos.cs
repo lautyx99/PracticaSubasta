@@ -20,7 +20,7 @@ namespace Application.UseCases.Billeteras
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<BilleteraDto?> ExecuteAsync(DepositoDto dto)
+        public async Task<BilleteraDto?> ExecuteAsync(DepositoDto dto, CancellationToken cancellationToken = default)
         {
             // 1. Validar reglas de entrada básicas
             if (dto.Monto <= 0)
@@ -39,7 +39,7 @@ namespace Application.UseCases.Billeteras
             billetera.Depositar(dto.Monto);
 
             // 4. Notificar los cambios al repositorio y persistir la transacción
-            await _billeteraRepository.UpdateAsync(billetera);
+            await _billeteraRepository.UpdateAsync(billetera, cancellationToken);
             await _unitOfWork.SaveChangesAsync();
 
             // 5. Mapear y retornar el DTO de respuesta actualizado

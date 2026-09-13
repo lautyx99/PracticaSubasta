@@ -4,57 +4,58 @@ using Application.UseCases.Pujas;
 using Application.UseCases.Subastas;
 using Domain.Entities;
 using Domain.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
+using System.Security.Claims;
 using System.Text;
 
 namespace API.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class SubastaController : ControllerBase
     {
-        private readonly ObtenerSubasta obtenerSubasta;
+        private readonly ObtenerSubasta _obtenerSubasta;
+        private readonly ObtenerSubastaPorId _obtenerSubastaPorId;
+        private readonly CrearSubasta _crearSubasta;
+        private readonly ObtenerSubastasActivas _obtenerSubastasActivas;
 
-        private readonly ObtenerSubastaPorId obtenerSubastaPorId;
-
-        private readonly CrearSubasta crearSubasta;
-
-        private readonly ObtenerSubastasActivas obtenerSubastasActivas;
-
-        private readonly RealizarPuja realizarPuja;
-
-        public SubastaController(ObtenerSubasta obtenerSubasta, ObtenerSubastaPorId obtenerSubastaPorId, CrearSubasta crearSubasta, ObtenerSubastasActivas obtenerSubastasActivas, RealizarPuja realizarPuja)
+        public SubastaController(
+            ObtenerSubasta obtenerSubasta,
+            ObtenerSubastaPorId obtenerSubastaPorId,
+            CrearSubasta crearSubasta,
+            ObtenerSubastasActivas obtenerSubastasActivas)
         {
-            this.obtenerSubasta = obtenerSubasta;
-            this.obtenerSubastaPorId = obtenerSubastaPorId;
-            this.crearSubasta = crearSubasta;
-            this.obtenerSubastasActivas = obtenerSubastasActivas;
-            this.realizarPuja = realizarPuja;
-
+            _obtenerSubasta = obtenerSubasta;
+            _obtenerSubastaPorId = obtenerSubastaPorId;
+            _crearSubasta = crearSubasta;
+            _obtenerSubastasActivas = obtenerSubastasActivas;
         }
 
+        [AllowAnonymous]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<SubastaDto>>> GetAll()
         {
-            var subastas = await obtenerSubasta.ExecuteAsync();
-
+            var subastas = await _obtenerSubasta.ExecuteAsync();
             return Ok(subastas);
         }
 
+        [AllowAnonymous]
         [HttpGet("activas")]
         public async Task<ActionResult<IEnumerable<SubastaDto>>> GetActivas()
         {
-            var subastas = await obtenerSubastasActivas.ExecuteAsync();
-
+            var subastas = await _obtenerSubastasActivas.ExecuteAsync();
             return Ok(subastas);
         }
 
+        [AllowAnonymous]
         [HttpGet("{id:int}")]
         public async Task<ActionResult<SubastaDto>> GetById(int id)
         {
-            var subasta = await obtenerSubastaPorId.ExecuteAsync(id);
+            var subasta = await _obtenerSubastaPorId.ExecuteAsync(id);
 
             if (subasta == null)
                 return NotFound($"No se encontró la subasta con ID {id}.");
@@ -62,43 +63,42 @@ namespace API.Controllers
             return Ok(subasta);
         }
 
-
-
-        // GET /api/v1/subastas/{subastaId}/pujas
-        [HttpGet("{subastaId:int}/pujas")]
-        public async Task<ActionResult> GetPujasPorSubasta([FromRoute] int subastaId)
-        {
-            // Delegación al Caso de Uso ObtenerHistorialPujas...
-            return Ok();
-        }
-
-
-
         [HttpPost]
-        public async Task<ActionResult<SubastaDto>> CreateSubasta([FromBody] CrearSubastaDto subastaDto)
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<ActionResult<SubastaDto>> CreateSubasta([FromBody] CrearSubastaRequest request)
         {
-            if (subastaDto == null)
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (!int.TryParse(userIdClaim, out int vendedorId))
             {
-                return BadRequest("El cuerpo de la solicitud no puede estar vacío.");
+                return Unauthorized();
             }
 
-            var nuevaSubasta = await crearSubasta.ExecuteAsync(subastaDto);
+            var dto = new CrearSubastaDto
+            {
+                Titulo = request.Titulo,
+                Descripcion = request.Descripcion,
+                PrecioInicial = request.PrecioInicial,
+                IncrementoMinimo = request.IncrementoMinimo,
+                CategoriaId = request.CategoriaId,
+                FechaInicio = request.FechaInicio,
+                FechaFin = request.FechaFin,
+                VendedorId = vendedorId
+            };
 
-            // Devuelve 201 Created con la subasta generada
+            var nuevaSubasta = await _crearSubasta.ExecuteAsync(dto);
+
             return CreatedAtAction(nameof(GetById), new { id = nuevaSubasta.Id }, nuevaSubasta);
         }
 
-
-        // POST /api/v1/subastas/{subastaId}/pujas
-        [HttpPost("{subastaId:int}/pujas")]
-        public async Task<ActionResult<PujaResultadoDto>> RegistrarPuja(
-            [FromRoute] int subastaId,
-            [FromBody] CrearPujaDto dto)
-        {
-            var resultado = await realizarPuja.ExecuteAsync(subastaId, dto);
-            return CreatedAtAction(nameof(GetPujasPorSubasta), new { subastaId = subastaId }, resultado);
-        }
-
-
+        public record CrearSubastaRequest(
+            string Titulo,
+            string Descripcion,
+            decimal PrecioInicial,
+            decimal IncrementoMinimo,
+            int CategoriaId,
+            DateTime FechaInicio,
+            DateTime FechaFin);
     }
 }

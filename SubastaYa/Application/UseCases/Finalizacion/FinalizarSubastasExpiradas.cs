@@ -35,7 +35,7 @@ namespace Application.UseCases.Finalizacion
 
             foreach (var subasta in subastasExpiradas)
             {
-                using var transaction = await _unitOfWork.BeginTransactionAsync(cancellationToken);
+                await using var transaction = await _unitOfWork.BeginTransactionAsync(cancellationToken);
 
                 try
                 {
@@ -53,6 +53,9 @@ namespace Application.UseCases.Finalizacion
                             // Transferir el saldo retendido al vendedor
                             billeteraComprador.ConfirmarDebito(ultimaPuja.Monto);
                             billeteraVendedor.AcreditarVenta(ultimaPuja.Monto);
+
+                            await _billeteraRepository.UpdateAsync(billeteraComprador, cancellationToken);
+                            await _billeteraRepository.UpdateAsync(billeteraVendedor, cancellationToken);
                         }
 
                         subasta.MarcarComoFinalizada(ganadorId: ultimaPuja.CompradorId, precioFinal: ultimaPuja.Monto);
@@ -62,6 +65,8 @@ namespace Application.UseCases.Finalizacion
                         // Subasta finalizada sin ofertas
                         subasta.MarcarComoFinalizada(ganadorId: null, precioFinal: null);
                     }
+
+                    await _subastaRepository.UpdateAsync(subasta, cancellationToken);
 
                     await _unitOfWork.SaveChangesAsync(cancellationToken);
                     await transaction.CommitAsync(cancellationToken);

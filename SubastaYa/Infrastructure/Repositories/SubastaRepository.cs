@@ -17,32 +17,42 @@ namespace Infrastructure.Repositories
             _context = context;
         }
 
-        public async Task<Subasta?> GetByIdAsync(int id)
+        public async Task<Subasta?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
         {
             return await _context.Subastas
-                .Include(s => s.Vendedor)
-                .Include(s => s.Categoria)
-                .FirstOrDefaultAsync(s => s.Id == id);
+            .Include(s => s.Vendedor)
+            .Include(s => s.Categoria)
+            .Include(s => s.Pujas)
+            .ThenInclude(p => p.Usuario)
+            .AsNoTracking()
+            .FirstOrDefaultAsync(s => s.Id == id, cancellationToken);
         }
 
-        public async Task<List<Subasta>> GetAllAsync()
+        public async Task<List<Subasta>> GetAllAsync(CancellationToken cancellationToken = default)
         {
             return await _context.Subastas
-                .Include(s => s.Vendedor)
-                .Include(s => s.Categoria)
-                .ToListAsync();
+            .Include(s => s.Vendedor)
+            .Include(s => s.Categoria)
+            .Include(s => s.Pujas)
+            .ThenInclude(p => p.Usuario)
+            .AsNoTracking()
+            .ToListAsync(cancellationToken);
         }
 
-        public async Task<List<Subasta>> GetActivasAsync()
+        public async Task<List<Subasta>> GetActivasAsync(CancellationToken cancellationToken = default)
         {
             var ahora = DateTime.UtcNow;
 
             return await _context.Subastas
+                .Include(s => s.Vendedor)
+                .Include(s => s.Categoria)
+                .Include(s => s.Pujas)
+                .ThenInclude(p => p.Usuario)
                 .Where(s => s.Estado == EstadoSubasta.Activa
-                         && s.FechaInicio <= ahora
-                         && s.FechaFin >= ahora)
+                 && !s.Finalizada
+                 && s.FechaFin > ahora)
                 .AsNoTracking()
-                .ToListAsync();
+                .ToListAsync(cancellationToken);
         }
 
         public async Task AddAsync(Subasta subasta)
@@ -51,7 +61,7 @@ namespace Infrastructure.Repositories
             await _context.SaveChangesAsync();
         }
 
-        public async Task UpdateAsync(Subasta subasta)
+        public async Task UpdateAsync(Subasta subasta, CancellationToken cancellationToken = default)
         {
             _context.Subastas.Update(subasta);
             await _context.SaveChangesAsync();

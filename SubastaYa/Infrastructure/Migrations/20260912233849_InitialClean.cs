@@ -3,10 +3,10 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace Infrastructure.Persistence.Migrations
+namespace Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class InitialClean : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -31,11 +31,11 @@ namespace Infrastructure.Persistence.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Email = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Email = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Nombre = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     ContraseñaHash = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     FechaRegistro = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Rol = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Rol = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -74,9 +74,8 @@ namespace Infrastructure.Persistence.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     UsuarioId = table.Column<int>(type: "int", nullable: false),
-                    SaldoTotal = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    SaldoRetenido = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    SaldoDisponible = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    SaldoTotal = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+                    SaldoRetenido = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
                     Version = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -101,13 +100,16 @@ namespace Infrastructure.Persistence.Migrations
                     Titulo = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Descripcion = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     UrlImagen = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    PrecioInicial = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    IncrementoMinimo = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    PrecioInicial = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+                    IncrementoMinimo = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
                     FechaInicio = table.Column<DateTime>(type: "datetime2", nullable: false),
                     FechaFin = table.Column<DateTime>(type: "datetime2", nullable: false),
                     FechaFinOriginal = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Finalizada = table.Column<bool>(type: "bit", nullable: false),
                     Estado = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Version = table.Column<int>(type: "int", nullable: false)
+                    Version = table.Column<int>(type: "int", nullable: false),
+                    GanadorId = table.Column<int>(type: "int", nullable: true),
+                    PrecioFinal = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -134,7 +136,7 @@ namespace Infrastructure.Persistence.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     SubastaId = table.Column<int>(type: "int", nullable: false),
                     CompradorId = table.Column<int>(type: "int", nullable: false),
-                    Monto = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Monto = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
                     Fecha_Puja = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
@@ -162,9 +164,11 @@ namespace Infrastructure.Persistence.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     BilleteraId = table.Column<int>(type: "int", nullable: false),
                     Tipo = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Monto = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Monto = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
                     Fecha = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    SubastaId = table.Column<int>(type: "int", nullable: false)
+                    SubastaId = table.Column<int>(type: "int", nullable: false),
+                    BilleteraId1 = table.Column<int>(type: "int", nullable: true),
+                    SubastaId1 = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -176,11 +180,21 @@ namespace Infrastructure.Persistence.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
+                        name: "FK_Transacciones_Billeteras_BilleteraId1",
+                        column: x => x.BilleteraId1,
+                        principalTable: "Billeteras",
+                        principalColumn: "Id");
+                    table.ForeignKey(
                         name: "FK_Transacciones_Subastas_SubastaId",
                         column: x => x.SubastaId,
                         principalTable: "Subastas",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Transacciones_Subastas_SubastaId1",
+                        column: x => x.SubastaId1,
+                        principalTable: "Subastas",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateIndex(
@@ -191,7 +205,8 @@ namespace Infrastructure.Persistence.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_Billeteras_UsuarioId",
                 table: "Billeteras",
-                column: "UsuarioId");
+                column: "UsuarioId",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Pujas_CompradorId",
@@ -219,9 +234,25 @@ namespace Infrastructure.Persistence.Migrations
                 column: "BilleteraId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Transacciones_BilleteraId1",
+                table: "Transacciones",
+                column: "BilleteraId1");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Transacciones_SubastaId",
                 table: "Transacciones",
                 column: "SubastaId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Transacciones_SubastaId1",
+                table: "Transacciones",
+                column: "SubastaId1");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Usuarios_Email",
+                table: "Usuarios",
+                column: "Email",
+                unique: true);
         }
 
         /// <inheritdoc />

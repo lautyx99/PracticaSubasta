@@ -14,9 +14,9 @@ namespace Application.UseCases.Subastas
         {
             _subastaRepository = subastaRepository;
         }
-        public async Task<IEnumerable<SubastaDto>> ExecuteAsync()
+        public async Task<IEnumerable<SubastaDto>> ExecuteAsync( CancellationToken cancellationToken = default)
         {
-            var subastas = await _subastaRepository.GetAllAsync();
+            var subastas = await _subastaRepository.GetAllAsync(cancellationToken);
 
             if (subastas == null)
             {
@@ -26,11 +26,19 @@ namespace Application.UseCases.Subastas
             {
                 Id = s.Id,
                 VendedorId = s.VendedorId,
+                VendedorNombre = s.Vendedor.Nombre,
                 CategoriaId = s.CategoriaId,
+                CategoriaNombre = s.Categoria?.Nombre,       
                 Titulo = s.Titulo,
                 Descripcion = s.Descripcion,
+                PrecioInicial = s.PrecioInicial,
+                IncrementoMinimo = s.IncrementoMinimo,      
                 FechaInicio = s.FechaInicio,
-                FechaFin = s.FechaFin
+                FechaFin = s.FechaFin,
+                Estado = s.Estado.ToString(),
+                GanadorId = s.GanadorId,
+                PrecioFinal = s.PrecioFinal,
+                                                          
             });
         }
     }
