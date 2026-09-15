@@ -34,7 +34,7 @@ namespace Infrastructure.Services
             }
 
             string token = GenerarJwtToken(usuario);
-            return new AuthResponseDto(usuario.Id, usuario.Nombre, usuario.Email, token);
+            return new AuthResponseDto(usuario.Id, usuario.Nombre, usuario.Email, token, usuario.Rol);
         }
 
         public async Task<AuthResponseDto> RegistrarAsync(RegistroRequestDto request)
@@ -54,7 +54,7 @@ namespace Infrastructure.Services
             await _usuarioRepository.AddAsync(nuevoUsuario);
 
             string token = GenerarJwtToken(nuevoUsuario);
-            return new AuthResponseDto(nuevoUsuario.Id, nuevoUsuario.Nombre, nuevoUsuario.Email, token);
+            return new AuthResponseDto(nuevoUsuario.Id, nuevoUsuario.Nombre, nuevoUsuario.Email, token, rolPorDefecto);
         }
 
         private string GenerarJwtToken(Usuario usuario)

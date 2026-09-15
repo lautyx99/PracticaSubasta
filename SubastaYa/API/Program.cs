@@ -16,12 +16,18 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        // Esto hace que cualquier enum viaje como texto en el JSON
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    });
 
 
 // Registro automático de TODOS los Casos de Uso de Application
@@ -92,8 +98,9 @@ options.TokenValidationParameters = new TokenValidationParameters
     ClockSkew = TimeSpan.Zero
 };
 
- // 3. INTERCEPTOR CRÍTICO PARA SIGNALR (WebSockets)
- options.Events = new JwtBearerEvents
+
+    // 3. INTERCEPTOR CRÍTICO PARA SIGNALR (WebSockets)
+    options.Events = new JwtBearerEvents
  {
     OnMessageReceived = context =>
      {
@@ -121,9 +128,10 @@ builder.Services.AddHostedService<SubastaWorker>();
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("Front", policy =>
-        policy.WithOrigins("http://localhost:55976")
+        policy.WithOrigins("http://localhost:5173")
               .AllowAnyHeader()
-              .AllowAnyMethod());
+              .AllowAnyMethod()
+              .AllowCredentials());
 });
 
 
@@ -180,7 +188,10 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
-app.UseHttpsRedirection();
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
 
 app.UseAuthorization();
 

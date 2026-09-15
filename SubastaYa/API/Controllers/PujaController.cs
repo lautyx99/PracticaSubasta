@@ -28,6 +28,7 @@ namespace API.Controllers
         /// GET: api/subastas/{subastaId}/pujas
         /// </summary>
         [HttpGet]
+        [AllowAnonymous]
         public async Task<ActionResult<IEnumerable<PujaDto>>> GetBySubasta([FromRoute] int subastaId)
         {
             var pujas = await obtenerPuja.ExecuteAsync(subastaId);

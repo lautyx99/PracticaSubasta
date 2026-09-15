@@ -79,6 +79,7 @@ namespace API.Controllers
             {
                 Titulo = request.Titulo,
                 Descripcion = request.Descripcion,
+                UrlImagen = request.UrlImagen,
                 PrecioInicial = request.PrecioInicial,
                 IncrementoMinimo = request.IncrementoMinimo,
                 CategoriaId = request.CategoriaId,
@@ -95,6 +96,7 @@ namespace API.Controllers
         public record CrearSubastaRequest(
             string Titulo,
             string Descripcion,
+            string? UrlImagen,
             decimal PrecioInicial,
             decimal IncrementoMinimo,
             int CategoriaId,

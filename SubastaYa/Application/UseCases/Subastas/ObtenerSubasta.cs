@@ -31,6 +31,7 @@ namespace Application.UseCases.Subastas
                 CategoriaNombre = s.Categoria?.Nombre,       
                 Titulo = s.Titulo,
                 Descripcion = s.Descripcion,
+                UrlImagen = s.UrlImagen,
                 PrecioInicial = s.PrecioInicial,
                 IncrementoMinimo = s.IncrementoMinimo,      
                 FechaInicio = s.FechaInicio,

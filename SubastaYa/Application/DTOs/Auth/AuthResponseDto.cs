@@ -4,6 +4,6 @@ using System.Text;
 
 namespace Application.DTOs.Auth
 {
-      public record AuthResponseDto(int Id, string Nombre, string Email, string Token);
+      public record AuthResponseDto(int Id, string Nombre, string Email, string Token, Enum Rol);
 
 }

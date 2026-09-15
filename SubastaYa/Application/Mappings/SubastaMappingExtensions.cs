@@ -22,7 +22,7 @@ namespace Application.Mappings
             {
                 Id = subasta.Id,
                 VendedorId = subasta.VendedorId,
-                VendedorNombre = subasta.Vendedor?.Nombre ?? subasta.Vendedor?.Nombre,
+                VendedorNombre = subasta.Vendedor?.Nombre, // Corregido (sin duplicado)
                 CategoriaId = subasta.CategoriaId,
                 CategoriaNombre = subasta.Categoria?.Nombre,
                 Titulo = subasta.Titulo,
@@ -41,12 +41,12 @@ namespace Application.Mappings
                     Id = ultimaPuja.Id,
                     SubastaId = ultimaPuja.SubastaId,
                     CompradorId = ultimaPuja.CompradorId,
-                    CompradorNombre = ultimaPuja.Usuario?.Nombre ?? ultimaPuja.Usuario?.Nombre,
+                    CompradorNombre = ultimaPuja.Usuario?.Nombre, // Corregido (sin duplicado)
                     Monto = ultimaPuja.Monto,
-                    FechaPuja = ultimaPuja.Fecha_Puja // O ultimaPuja.FechaUtc según la entidad
+                    FechaPuja = ultimaPuja.Fecha_Puja
                 } : null
             };
         }
-    }
+     }
 }
 
