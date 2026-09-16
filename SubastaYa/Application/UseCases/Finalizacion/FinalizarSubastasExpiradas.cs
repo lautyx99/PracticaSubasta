@@ -12,6 +12,7 @@ namespace Application.UseCases.Finalizacion
         private readonly IPujaRepository _pujaRepository;
         private readonly IBilleteraRepository _billeteraRepository;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IAuditoriaService _auditoriaService;
         private readonly INotificadorSubasta _notificadorSubasta;
 
         public FinalizarSubastasExpiradas(
@@ -19,13 +20,15 @@ namespace Application.UseCases.Finalizacion
             IPujaRepository pujaRepository,
             IBilleteraRepository billeteraRepository,
             IUnitOfWork unitOfWork,
-            INotificadorSubasta notificadorSubasta)
+            INotificadorSubasta notificadorSubasta,
+            IAuditoriaService auditoriaService)
         {
             _subastaRepository = subastaRepository;
             _pujaRepository = pujaRepository;
             _billeteraRepository = billeteraRepository;
             _unitOfWork = unitOfWork;
             _notificadorSubasta = notificadorSubasta;
+            _auditoriaService = auditoriaService;
         }
 
         public async Task ExecuteAsync(CancellationToken cancellationToken = default)
@@ -67,6 +70,22 @@ namespace Application.UseCases.Finalizacion
                     }
 
                     await _subastaRepository.UpdateAsync(subasta, cancellationToken);
+
+                    await _auditoriaService.RegistrarEventoAsync(
+                    usuarioId: 0, // 0 indica que fue ejecutado por el Sistema / Worker
+                    entidad: "Subasta",
+                    entidadId: subasta.Id,
+                    accion: "CAMBIO_ESTADO",
+                    detalles: new
+                    {
+                        EstadoAnterior = "Activa",
+                        EstadoNuevo = "Finalizada",
+                        GanadorId = subasta.GanadorId,
+                        PrecioFinal = subasta.PrecioFinal,
+                        Motivo = "Cierre automático por tiempo expirado (Worker)"
+                    },
+                        servicio: "FinalizarSubastasExpiradas"
+                     );
 
                     await _unitOfWork.SaveChangesAsync(cancellationToken);
                     await transaction.CommitAsync(cancellationToken);

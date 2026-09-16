@@ -100,6 +100,11 @@ namespace Domain.Entities
             Version++;
         }
 
+        public void MarcarComoCancelada()
+        {
+            Estado = EstadoSubasta.Cancelada;
+        }
+
         public bool EstaActiva() =>
         Estado == EstadoSubasta.Activa
             && DateTime.UtcNow >= FechaInicio

@@ -5,6 +5,7 @@ using Application;
 using Application.Interfaces;
 using Application.UseCases.Billeteras;
 using Application.UseCases.Finalizacion;
+using Application.UseCases.Pujas;
 using Application.UseCases.Subastas;
 using Domain.Interfaces;
 using Infrastructure;
@@ -65,11 +66,14 @@ builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddScoped<IAuditoriaService, AuditoriaService>();
 
 // Auth Service
 builder.Services.AddScoped<IAuthService, AuthService>();
 
-
+builder.Services.AddScoped<EliminarSubasta>();
+builder.Services.AddScoped<ObtenerMisPujas>();
+builder.Services.AddScoped<ObtenerMisPublicaciones>();
 
 
 // 1. Obtener clave secreta del appsettings.json

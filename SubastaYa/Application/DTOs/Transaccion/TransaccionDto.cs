@@ -16,6 +16,6 @@ namespace Application.DTOs.Transaccion
 
         public DateTime Fecha { get; set; }
 
-        public int SubastaId { get; set; }
+        public int? SubastaId { get; set; }
     }
 }

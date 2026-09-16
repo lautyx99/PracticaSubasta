@@ -32,7 +32,15 @@ namespace Infrastructure.Repositories
         public async Task UpdateAsync(Billetera billetera, CancellationToken cancellationToken= default)
         {
             _context.Billeteras.Update(billetera);
-            await _context.SaveChangesAsync();
+            foreach (var transaccion in billetera.Transacciones)
+            {
+                if (transaccion.Id == 0) // O la validación de ID por defecto que uses (ej. Guid.Empty si usas Guids)
+                {
+                    _context.Entry(transaccion).State = Microsoft.EntityFrameworkCore.EntityState.Added;
+                }
+            }
+
+            await _context.SaveChangesAsync(cancellationToken);
         }
     }
 }

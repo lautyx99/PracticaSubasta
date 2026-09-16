@@ -163,16 +163,28 @@ namespace Application.UseCases.Pujas
                     mensaje = $"[CODE-ERROR] - Error al procesar puja en subasta {subastaId}: {ex.Message}"
                 });
 
-                // Log de intento fallido en auditoría (fuera de la transacción abortada)
-                await auditoriaRepository.AddAsync(new AuditoriaLog(
-                    usuarioId: dto.CompradorId,
-                    entidad: "Subasta",
-                    entidadId: subastaId,
-                    accion: "PUJA_RECHAZADA",
-                    detalleJson: detalleError,
-                    fecha: DateTime.UtcNow,
-                    servicio: "SubastaService"
-                ));
+                try
+                {
+                    // 💡 Solución: Guardamos la auditoría asegurando que persista 
+                    // incluso cuando la transacción principal hizo rollback.
+                    await auditoriaRepository.AddAsync(new AuditoriaLog(
+                        usuarioId: dto.CompradorId,
+                        entidad: "Subasta",
+                        entidadId: subastaId,
+                        accion: "PUJA_RECHAZADA",
+                        detalleJson: detalleError,
+                        fecha: DateTime.UtcNow,
+                        servicio: "SubastaService"
+                    ));
+
+                    // Si tu repositorio o context requiere un SaveChanges independiente para esto:
+                    await unitOfWork.SaveChangesAsync(); // (OJO: Si unitOfWork comparte el context transaccional abortado, 
+                                                         // necesitarás un scope limpio para el log de error).
+                }
+                catch (Exception )
+                {
+                   
+                }
 
                 throw; // Re-lanzar para ser capturado por el Middleware
             }

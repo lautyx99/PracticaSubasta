@@ -81,5 +81,25 @@ namespace Infrastructure.Repositories
                 .Where(s => s.FechaFin <= fechaActual && !s.Finalizada) // Ajusta 'Finalizada' según la propiedad o Enum de estado de tu Entidad
                 .ToListAsync(cancellationToken);
         }
+
+        public async Task<List<Subasta>> GetByVendedorIdAsync(int vendedorId, CancellationToken cancellationToken)
+        {
+            return await _context.Subastas
+                .Include(s => s.Vendedor)
+                .Include(s => s.Categoria)
+                .Include(s => s.Pujas) // Vital para que s.Pujas.Count funcione en el mapeo
+                .Where(s => s.VendedorId == vendedorId)
+                .ToListAsync(cancellationToken);
+        }
+
+        public async Task<List<Subasta>> GetByUsuarioParticipanteAsync(int usuarioId, CancellationToken cancellationToken)
+        {
+            return await _context.Subastas
+                .Include(s => s.Vendedor)
+                .Include(s => s.Categoria)
+                .Include(s => s.Pujas) // Traemos las pujas para calcular cantidad y mapear PujaDto
+                .Where(s => s.Pujas.Any(p => p.CompradorId == usuarioId))
+                .ToListAsync(cancellationToken);
+        }
     }
 }

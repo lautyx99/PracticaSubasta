@@ -18,14 +18,14 @@ namespace Domain.Entities
 
         public DateTime Fecha { get; private set; }
 
-        public int SubastaId { get; private set; } 
+        public int? SubastaId { get; private set; } 
 
         public virtual Subasta Subasta { get; private set; } = null!;
         public virtual Billetera Billetera { get; private set; } = null!;
 
         private TransaccionLedger() { }
 
-        public TransaccionLedger(int billeteraId, string tipo, decimal monto, DateTime fecha, int subastaId)
+        public TransaccionLedger(int billeteraId, string tipo, decimal monto, DateTime fecha, int? subastaId)
         {
             BilleteraId = billeteraId;
             Tipo = tipo;

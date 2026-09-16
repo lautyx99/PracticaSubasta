@@ -25,6 +25,10 @@ namespace Application.DTOs.Subasta
 
         public int Version { get; set; } // para control de concurrencia optimista
 
+        public int CantidadPujas { get; set; }
+
         public PujaDto? MejorPuja { get; set; }      // opcional, útil para el front
+
+        public List<PujaDto> Pujas { get; set; } = new();
     }
 }

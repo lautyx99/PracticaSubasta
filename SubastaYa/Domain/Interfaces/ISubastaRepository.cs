@@ -12,6 +12,11 @@ namespace Domain.Interfaces
         Task<List<Subasta>> GetActivasAsync(CancellationToken cancellationToken);
 
         Task<List<Subasta>> GetSubastasExpiradasSinFinalizarAsync(CancellationToken cancellationToken = default);
+
+        Task<List<Subasta>> GetByVendedorIdAsync(int vendedorId, CancellationToken cancellationToken);
+
+        Task<List<Subasta>> GetByUsuarioParticipanteAsync(int usuarioId, CancellationToken cancellationToken);
+
         Task AddAsync(Subasta subasta);
         Task UpdateAsync(Subasta subasta , CancellationToken cancellationToken);
         Task DeleteAsync(Subasta subasta);

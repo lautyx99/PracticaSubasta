@@ -47,6 +47,17 @@ namespace Domain.Entities
 
             // Control de concurrencia optimista
             Version++;
+
+            // Registrar la transacción en el ledger para que el historial la refleje
+            var transaccion = new TransaccionLedger(
+                billeteraId: this.Id,
+                tipo: "Deposito",
+                monto: monto,
+                fecha: DateTime.UtcNow,
+                subastaId: null // O el ID de subasta correspondiente si aplica
+            );
+
+            Transacciones.Add(transaccion);
         }
 
         public void RetenerFondos(decimal monto)

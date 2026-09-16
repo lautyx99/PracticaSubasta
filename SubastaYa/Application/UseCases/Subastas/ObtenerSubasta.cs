@@ -39,7 +39,8 @@ namespace Application.UseCases.Subastas
                 Estado = s.Estado.ToString(),
                 GanadorId = s.GanadorId,
                 PrecioFinal = s.PrecioFinal,
-                                                          
+                CantidadPujas = s.Pujas != null ? s.Pujas.Count : 0,
+
             });
         }
     }

@@ -4,6 +4,7 @@ using Application.UseCases.Pujas;
 using Application.UseCases.Subastas;
 using Domain.Entities;
 using Domain.Interfaces;
+using Infrastructure.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -23,16 +24,27 @@ namespace API.Controllers
         private readonly CrearSubasta _crearSubasta;
         private readonly ObtenerSubastasActivas _obtenerSubastasActivas;
 
+        private readonly EliminarSubasta _eliminarSubasta;
+
+        private readonly ObtenerMisPujas _obtenerMisPujas;
+        private readonly ObtenerMisPublicaciones _obtenerMisPublicaciones;
+
         public SubastaController(
             ObtenerSubasta obtenerSubasta,
             ObtenerSubastaPorId obtenerSubastaPorId,
             CrearSubasta crearSubasta,
-            ObtenerSubastasActivas obtenerSubastasActivas)
+            ObtenerSubastasActivas obtenerSubastasActivas,
+            EliminarSubasta eliminarSubasta,
+            ObtenerMisPublicaciones obtenerMisPublicaciones,
+            ObtenerMisPujas obtenerMisPujas)
         {
             _obtenerSubasta = obtenerSubasta;
             _obtenerSubastaPorId = obtenerSubastaPorId;
             _crearSubasta = crearSubasta;
             _obtenerSubastasActivas = obtenerSubastasActivas;
+            _eliminarSubasta = eliminarSubasta;
+            _obtenerMisPublicaciones = obtenerMisPublicaciones;
+            _obtenerMisPujas = obtenerMisPujas;
         }
 
         [AllowAnonymous]
@@ -91,6 +103,54 @@ namespace API.Controllers
             var nuevaSubasta = await _crearSubasta.ExecuteAsync(dto);
 
             return CreatedAtAction(nameof(GetById), new { id = nuevaSubasta.Id }, nuevaSubasta);
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Eliminar(int id, [FromQuery] int usuarioId, [FromQuery] bool esAdmin = false, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                await _eliminarSubasta.ExecuteAsync(id, usuarioId, esAdmin, cancellationToken);
+                return NoContent(); // 204 No Content indica que se eliminó con éxito
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { mensaje = ex.Message });
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return StatusCode(403, new { mensaje = ex.Message });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { mensaje = ex.Message });
+            }
+        }
+
+        [HttpGet("mis-pujas")]
+        public async Task<ActionResult<IEnumerable<SubastaDto>>> GetMisPujas(CancellationToken cancellationToken)
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (!int.TryParse(userIdClaim, out int usuarioId))
+            {
+                return Unauthorized();
+            }
+
+            var resultado = await _obtenerMisPujas.ExecuteAsync(usuarioId, cancellationToken);
+            return Ok(resultado);
+        }
+
+        [HttpGet("mis-publicaciones")]
+        public async Task<ActionResult<IEnumerable<SubastaDto>>> GetMisPublicaciones(CancellationToken cancellationToken)
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (!int.TryParse(userIdClaim, out int usuarioId))
+            {
+                return Unauthorized();
+            }
+
+            var resultado = await _obtenerMisPublicaciones.ExecuteAsync(usuarioId, cancellationToken);
+            return Ok(resultado);
         }
 
         public record CrearSubastaRequest(
