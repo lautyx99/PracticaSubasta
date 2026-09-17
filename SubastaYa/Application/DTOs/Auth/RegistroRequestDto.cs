@@ -6,10 +6,9 @@ namespace Application.DTOs.Auth
 {
     public class RegistroRequestDto
     {
-        public string Nombre { get; set; } = null!;
-
-        public string Email { get; set; } = null!;
-
-        public string Password { get; set; } = null!;
+        public string? Nombre { get; set; }
+        public string? Email { get; set; }
+        public string? Password { get; set; }
+        public int Rol { get; set; }
     }
 }

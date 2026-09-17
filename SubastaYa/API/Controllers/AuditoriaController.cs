@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
 {
-    [Authorize(Roles = "Administrador")] // Solo accesible por Admins
+    [Authorize(Roles = "3")] // Solo accesible por Admins
     [ApiController]
     [Route("api/auditoria")]
     public class AuditoriaController : ControllerBase
@@ -17,9 +17,16 @@ namespace API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> ObtenerLogs([FromQuery] string entidad, [FromQuery] int entidadId)
+        public async Task<IActionResult> ObtenerLogs([FromQuery] string? entidad, [FromQuery] int? entidadId)
         {
-            var logs = await _auditoriaRepository.ObtenerPorEntidadAsync(entidad, entidadId);
+            // Si el frontend no envía filtros, devolvemos todo el historial
+            if (string.IsNullOrEmpty(entidad) || !entidadId.HasValue)
+            {
+                var todosLosLogs = await _auditoriaRepository.ObtenerTodosAsync(); // O el método equivalente en tu repo
+                return Ok(todosLosLogs);
+            }
+
+            var logs = await _auditoriaRepository.ObtenerPorEntidadAsync(entidad, entidadId.Value);
             return Ok(logs);
         }
     }

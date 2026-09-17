@@ -10,5 +10,7 @@ namespace Domain.Interfaces
         Task AddAsync(AuditoriaLog auditoria);
 
         Task<IEnumerable<AuditoriaLog>> ObtenerPorEntidadAsync(string entidad, int entidadId);
+
+        Task<IEnumerable<AuditoriaLog>> ObtenerTodosAsync();
     }
 }

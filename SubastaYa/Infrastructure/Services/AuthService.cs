@@ -39,7 +39,7 @@ namespace Infrastructure.Services
 
         public async Task<AuthResponseDto> RegistrarAsync(RegistroRequestDto request)
         {
-            var usuarioExiste = await _usuarioRepository.GetByEmailAsync(request.Email);
+            var usuarioExiste = await _usuarioRepository.GetByEmailAsync(request.Email!);
             if (usuarioExiste != null)
             {
                 throw new InvalidOperationException("El correo ya está registrado.");
@@ -49,7 +49,13 @@ namespace Infrastructure.Services
 
 
             string passwordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
-            var nuevoUsuario = new Usuario(request.Nombre, request.Email, passwordHash,fechaRegistro, rolPorDefecto );
+            var nuevoUsuario = new Usuario(
+            nombre: request.Nombre!,
+            email: request.Email!,
+            contraseñaHash: passwordHash,
+            fechaRegistro: fechaRegistro,
+            rol: rolPorDefecto
+            );
 
             await _usuarioRepository.AddAsync(nuevoUsuario);
 
@@ -66,7 +72,8 @@ namespace Infrastructure.Services
             {
                 new Claim(ClaimTypes.NameIdentifier, usuario.Id.ToString()),
                 new Claim(ClaimTypes.Email, usuario.Email),
-                new Claim(ClaimTypes.Name, usuario.Nombre)
+                new Claim(ClaimTypes.Name, usuario.Nombre),
+                new Claim("http://schemas.microsoft.com/ws/2008/06/identity/claims/role", ((int)usuario.Rol).ToString())
             };
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
