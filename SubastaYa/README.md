@@ -88,9 +88,9 @@ Puedes simular el envío concurrente de dos solicitudes idénticas ejecutando el
 
 
 
-\# URL del endpoint de pujas de tu API
+\# URL del endpoint de pujas 
 
-URL="http://localhost:55976/api/Pujas"
+URL="http://localhost:55976/api/subastas/subastaId/pujas"
 
 
 
@@ -102,17 +102,13 @@ TOKEN="TuTokenJwtValidoAqui"
 
 \# JSON con los datos de la puja a enviar de forma idéntica
 
-PAYLOAD='{"subastaId": 1, "monto": 15000}'
+PAYLOAD='{"monto": 15000}'
 
 
 
-echo "🚀 Enviando dos peticiones de puja idénticas concurrentes..."
+\# Petición 1
 
-
-
-\# Lanzamos ambas peticiones en segundo plano (\&) de manera simultánea
-
-curl -s -o /dev/null -w "Petición 1 - Código HTTP: %{http\_code}\\n" \\
+curl -s -o /dev/null -w "%{http\_code}" \\
 
 &#x20; -X POST "$URL" \\
 
@@ -120,11 +116,13 @@ curl -s -o /dev/null -w "Petición 1 - Código HTTP: %{http\_code}\\n" \\
 
 &#x20; -H "Authorization: Bearer $TOKEN" \\
 
-&#x20; -d "$PAYLOAD" \&
+&#x20; -d "$PAYLOAD" > res1.txt \&
 
 
 
-curl -s -o /dev/null -w "Petición 2 - Código HTTP: %{http\_code}\\n" \\
+\# Petición 2 (idéntica y enviada en paralelo)
+
+curl -s -o /dev/null -w "%{http\_code}" \\
 
 &#x20; -X POST "$URL" \\
 
@@ -132,7 +130,7 @@ curl -s -o /dev/null -w "Petición 2 - Código HTTP: %{http\_code}\\n" \\
 
 &#x20; -H "Authorization: Bearer $TOKEN" \\
 
-&#x20; -d "$PAYLOAD" \&
+&#x20; -d "$PAYLOAD" > res2.txt \&
 
 
 
@@ -142,5 +140,25 @@ wait
 
 
 
-echo "✅ Prueba finalizada. Una debió retornar éxito (200/201) y la otra conflicto (409)."
+\# Resultados
+
+echo "----------------------------------------"
+
+echo "Petición 1 - Código HTTP: $(cat res1.txt)"
+
+echo "Petición 2 - Código HTTP: $(cat res2.txt)"
+
+echo "----------------------------------------"
+
+
+
+\# Limpieza
+
+rm -f res1.txt res2.txt
+
+
+
+echo "✅ Prueba finalizada."
+
+
 

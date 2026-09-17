@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using System.Security.Claims;
 using System.Text;
 
@@ -70,16 +71,28 @@ namespace API.Controllers
                 Monto = request.Monto
             };
 
-            PujaResultadoDto resultado = await realizarPujaUseCase.ExecuteAsync(subastaId, dto);
+            try
+            {
 
-            // Corregido: controllerName apunta a "Puja" para coincidir con PujaController
-            return CreatedAtAction(
-                actionName: nameof(ObtenerPujaPorId),
-                controllerName: "Puja",
-                routeValues: new { subastaId = subastaId, pujaId = resultado.Id },
-                value: resultado);
+                PujaResultadoDto resultado = await realizarPujaUseCase.ExecuteAsync(subastaId, dto);
+
+                // Corregido: controllerName apunta a "Puja" para coincidir con PujaController
+                return CreatedAtAction(
+                    actionName: nameof(ObtenerPujaPorId),
+                    controllerName: "Puja",
+                    routeValues: new { subastaId = subastaId, pujaId = resultado.Id },
+                    value: resultado);
+            }
+            catch (Microsoft.EntityFrameworkCore.DbUpdateConcurrencyException)
+            {
+                // 🎯 Forzamos el HTTP 409 Conflict ante colisiones de concurrencia optimista
+                return Conflict(new { mensaje = "Conflicto de concurrencia: la subasta fue modificada por otra puja simultánea." });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { mensaje = ex.Message });
+            }
         }
-
         public record CrearPujaRequest(decimal Monto);
     }
 }

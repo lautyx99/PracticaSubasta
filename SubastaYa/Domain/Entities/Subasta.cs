@@ -105,6 +105,24 @@ namespace Domain.Entities
             Estado = EstadoSubasta.Cancelada;
         }
 
+        public void EstablecerFechas(DateTime fechaInicio, DateTime fechaFin)
+        {
+            // 1. La fecha de inicio no puede ser en el pasado (con un margen mínimo opcional por segundos de demora)
+            if (fechaInicio < DateTime.UtcNow.AddMinutes(-1))
+            {
+                throw new ArgumentException("La fecha de inicio no puede ser una fecha pasada.", nameof(fechaInicio));
+            }
+
+            // 2. El inicio debe ser obligatoriamente antes del cierre
+            if (fechaInicio >= fechaFin)
+            {
+                throw new ArgumentException("La fecha de inicio debe ser anterior a la fecha y hora de cierre.", nameof(fechaInicio));
+            }
+
+            FechaInicio = fechaInicio;
+            FechaFin = fechaFin;
+        }
+
         public bool EstaActiva() =>
         Estado == EstadoSubasta.Activa
             && DateTime.UtcNow >= FechaInicio
