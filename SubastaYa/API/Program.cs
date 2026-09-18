@@ -45,6 +45,8 @@ builder.Services.AddScoped<CrearSubasta>();
 
 builder.Services.AddScoped<FinalizarSubastasExpiradas>();
 
+builder.Services.AddScoped<ObtenerSubastasProximas>();
+
 
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
@@ -66,7 +68,7 @@ builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddScoped<IAuditoriaService, AuditoriaService>();
+
 
 // Auth Service
 builder.Services.AddScoped<IAuthService, AuthService>();
@@ -75,6 +77,7 @@ builder.Services.AddScoped<EliminarSubasta>();
 builder.Services.AddScoped<ObtenerMisPujas>();
 builder.Services.AddScoped<ObtenerMisPublicaciones>();
 
+builder.Services.AddScoped<IAuditoriaService, AuditoriaService>();
 
 // 1. Obtener clave secreta del appsettings.json
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");

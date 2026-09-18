@@ -12,7 +12,6 @@ namespace Infrastructure.Seed
             if (context.Billeteras.Any())
                 return;
 
-            // Obtener usuarios de forma segura con fallback por posición
             var vendedor = context.Usuarios.FirstOrDefault(u => u.Email.ToLower() == "vendedor@test.com")
                         ?? context.Usuarios.OrderBy(u => u.Id).FirstOrDefault();
 

@@ -78,7 +78,7 @@ namespace Infrastructure.Repositories
             var fechaActual = DateTime.UtcNow;
 
             return await _context.Subastas
-                .Where(s => s.FechaFin <= fechaActual && !s.Finalizada) // Ajusta 'Finalizada' según la propiedad o Enum de estado de tu Entidad
+                .Where(s => s.FechaFin <= fechaActual && !s.Finalizada) 
                 .ToListAsync(cancellationToken);
         }
 
@@ -87,7 +87,7 @@ namespace Infrastructure.Repositories
             return await _context.Subastas
                 .Include(s => s.Vendedor)
                 .Include(s => s.Categoria)
-                .Include(s => s.Pujas) // Vital para que s.Pujas.Count funcione en el mapeo
+                .Include(s => s.Pujas) 
                 .Where(s => s.VendedorId == vendedorId)
                 .ToListAsync(cancellationToken);
         }
@@ -97,8 +97,21 @@ namespace Infrastructure.Repositories
             return await _context.Subastas
                 .Include(s => s.Vendedor)
                 .Include(s => s.Categoria)
-                .Include(s => s.Pujas) // Traemos las pujas para calcular cantidad y mapear PujaDto
+                .Include(s => s.Pujas) 
                 .Where(s => s.Pujas.Any(p => p.CompradorId == usuarioId))
+                .ToListAsync(cancellationToken);
+        }
+
+        public async Task<List<Subasta>> GetProximasAsync(DateTime fechaActual, CancellationToken cancellationToken)
+        {
+            var ahora = DateTime.UtcNow;
+
+            return await _context.Subastas
+                .Include(s => s.Vendedor)
+                .Include(s => s.Categoria)
+                .Include(s => s.Pujas)
+                .Where(s => s.FechaInicio > ahora) // O el filtro de estado que utilices para próximas
+                .OrderBy(s => s.FechaInicio)
                 .ToListAsync(cancellationToken);
         }
     }

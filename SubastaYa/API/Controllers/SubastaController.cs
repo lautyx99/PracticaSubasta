@@ -24,6 +24,8 @@ namespace API.Controllers
         private readonly CrearSubasta _crearSubasta;
         private readonly ObtenerSubastasActivas _obtenerSubastasActivas;
 
+        private readonly ObtenerSubastasProximas _obtenerSubastasProximas;
+
         private readonly EliminarSubasta _eliminarSubasta;
 
         private readonly ObtenerMisPujas _obtenerMisPujas;
@@ -36,7 +38,8 @@ namespace API.Controllers
             ObtenerSubastasActivas obtenerSubastasActivas,
             EliminarSubasta eliminarSubasta,
             ObtenerMisPublicaciones obtenerMisPublicaciones,
-            ObtenerMisPujas obtenerMisPujas)
+            ObtenerMisPujas obtenerMisPujas,
+            ObtenerSubastasProximas obtenerSubastasProximas)
         {
             _obtenerSubasta = obtenerSubasta;
             _obtenerSubastaPorId = obtenerSubastaPorId;
@@ -45,6 +48,7 @@ namespace API.Controllers
             _eliminarSubasta = eliminarSubasta;
             _obtenerMisPublicaciones = obtenerMisPublicaciones;
             _obtenerMisPujas = obtenerMisPujas;
+            _obtenerSubastasProximas = obtenerSubastasProximas;
         }
 
         [AllowAnonymous]
@@ -111,7 +115,7 @@ namespace API.Controllers
             try
             {
                 await _eliminarSubasta.ExecuteAsync(id, usuarioId, esAdmin, cancellationToken);
-                return NoContent(); // 204 No Content indica que se eliminó con éxito
+                return NoContent();
             }
             catch (KeyNotFoundException ex)
             {
@@ -151,6 +155,15 @@ namespace API.Controllers
 
             var resultado = await _obtenerMisPublicaciones.ExecuteAsync(usuarioId, cancellationToken);
             return Ok(resultado);
+        }
+
+        [HttpGet("proximas")]
+        public async Task<ActionResult<IEnumerable<Subasta>>> GetProximas(
+        [FromServices] ObtenerSubastasProximas obtenerSubastasProximas,
+        CancellationToken cancellationToken)
+        {
+            var subastas = await obtenerSubastasProximas.ExecuteAsync(cancellationToken);
+            return Ok(subastas);
         }
 
         public record CrearSubastaRequest(

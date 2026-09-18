@@ -54,7 +54,15 @@ namespace Infrastructure.Seed
                     contraseñaHash: contraseñaHash,
                     rol: RolUsuario.Comprador,
                     fechaRegistro: fecha
-                )
+                ),
+                
+                new Usuario(
+                    nombre: "Administrador",
+                    email : "admin@test.com",
+                    contraseñaHash : contraseñaHash,
+                    rol: RolUsuario.Administrador,
+                    fechaRegistro : fecha
+                    )
             };
 
             context.Usuarios.AddRange(usuarios);

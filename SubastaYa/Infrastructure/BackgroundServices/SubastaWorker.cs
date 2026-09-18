@@ -12,7 +12,7 @@ namespace Infrastructure.Workers
     {
         private readonly IServiceProvider _serviceProvider;
         private readonly ILogger<SubastaWorker> _logger;
-        private readonly TimeSpan _periodoInspeccion = TimeSpan.FromSeconds(5); // Frecuencia del ciclo
+        private readonly TimeSpan _periodoInspeccion = TimeSpan.FromSeconds(5); 
 
         public SubastaWorker(
             IServiceProvider serviceProvider,
@@ -26,16 +26,27 @@ namespace Infrastructure.Workers
         {
             _logger.LogInformation("[WORKER] SubastaWorker iniciado y monitoreando subastas activas.");
 
+            // Pequeña pausa inicial para dar tiempo a que la API levante y corran las migraciones/seeds
+            await Task.Delay(TimeSpan.FromSeconds(3), stoppingToken);
+
             using var timer = new PeriodicTimer(_periodoInspeccion);
 
             while (await timer.WaitForNextTickAsync(stoppingToken) && !stoppingToken.IsCancellationRequested)
             {
                 try
                 {
-                    // Crear un scope manual para resolver servicios Scoped (DbContext / UseCases)
                     using var scope = _serviceProvider.CreateScope();
-                    var finalizarSubastasUseCase = scope.ServiceProvider.GetRequiredService<FinalizarSubastasExpiradas>();
+                    var context = scope.ServiceProvider.GetRequiredService<SubastaContext>();
 
+                    // 🛡️ VALIDACIÓN DE SEGURIDAD: Si la tabla de usuarios aún está vacía, 
+                    // el worker se espera al siguiente ciclo para evitar el error de FK.
+                    if (!context.Usuarios.Any())
+                    {
+                        _logger.LogWarning("[WORKER] Esperando a que el seed de usuarios esté listo...");
+                        continue;
+                    }
+
+                    var finalizarSubastasUseCase = scope.ServiceProvider.GetRequiredService<FinalizarSubastasExpiradas>();
                     await finalizarSubastasUseCase.ExecuteAsync(stoppingToken);
                 }
                 catch (Exception ex)
@@ -44,7 +55,5 @@ namespace Infrastructure.Workers
                 }
             }
         }
-
-
     }
 }

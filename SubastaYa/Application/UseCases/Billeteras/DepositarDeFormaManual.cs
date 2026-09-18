@@ -52,10 +52,10 @@ namespace Application.UseCases.Billeteras
             });
 
             var auditoriaLog = new AuditoriaLog(
-                usuarioId: adminId,            // Registramos que la acción la ejecutó el Admin
+                usuarioId: adminId,            
                 entidad: "Billetera",
                 entidadId: billetera.Id,
-                accion: "ACREDITACION_MANUAL", // Acción clave solicitada por el TP
+                accion: "ACREDITACION_MANUAL", 
                 detalleJson: detalleJson,
                 fecha: DateTime.UtcNow,
                 servicio: "BilleteraAdminService"

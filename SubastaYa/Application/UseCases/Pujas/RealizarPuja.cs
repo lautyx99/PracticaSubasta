@@ -126,13 +126,10 @@ namespace Application.UseCases.Pujas
                 var nuevaPuja = new Puja(subastaId, dto.CompradorId, dto.Monto, DateTime.UtcNow);
                 await pujaRepository.AddAsync(nuevaPuja);
 
-                // Commit de Operaciones en BD
                 await unitOfWork.SaveChangesAsync();
                 await transaction.CommitAsync();
 
 
-
-                // Guardar el DTO en una variable para usarlo en la notificación y el return
                 var resultadoDto = new PujaResultadoDto
                 {
                     Id = nuevaPuja.Id,
@@ -144,7 +141,6 @@ namespace Application.UseCases.Pujas
                     NuevaFechaFin = subasta.FechaFin
                 };
 
-                // --- Notificación en tiempo real (SignalR) ---
                 await _notificadorSubasta.NotificarNuevaPujaAsync(subastaId, resultadoDto);
 
                 if (tiempoExtendido)
@@ -165,8 +161,6 @@ namespace Application.UseCases.Pujas
 
                 try
                 {
-                    // 💡 Solución: Guardamos la auditoría asegurando que persista 
-                    // incluso cuando la transacción principal hizo rollback.
                     await auditoriaRepository.AddAsync(new AuditoriaLog(
                         usuarioId: dto.CompradorId,
                         entidad: "Subasta",
@@ -177,16 +171,14 @@ namespace Application.UseCases.Pujas
                         servicio: "SubastaService"
                     ));
 
-                    // Si tu repositorio o context requiere un SaveChanges independiente para esto:
-                    await unitOfWork.SaveChangesAsync(); // (OJO: Si unitOfWork comparte el context transaccional abortado, 
-                                                         // necesitarás un scope limpio para el log de error).
+                    await unitOfWork.SaveChangesAsync(); 
                 }
                 catch (Exception )
                 {
                    
                 }
 
-                throw; // Re-lanzar para ser capturado por el Middleware
+                throw; 
             }
         }
     

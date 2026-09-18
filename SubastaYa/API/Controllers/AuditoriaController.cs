@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
 {
-    [Authorize(Roles = "3")] // Solo accesible por Admins
+    [Authorize(Roles = "3")] 
     [ApiController]
     [Route("api/auditoria")]
     public class AuditoriaController : ControllerBase
@@ -22,7 +22,7 @@ namespace API.Controllers
             // Si el frontend no envía filtros, devolvemos todo el historial
             if (string.IsNullOrEmpty(entidad) || !entidadId.HasValue)
             {
-                var todosLosLogs = await _auditoriaRepository.ObtenerTodosAsync(); // O el método equivalente en tu repo
+                var todosLosLogs = await _auditoriaRepository.ObtenerTodosAsync();
                 return Ok(todosLosLogs);
             }
 

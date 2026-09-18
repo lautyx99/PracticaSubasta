@@ -53,7 +53,6 @@ namespace Application.UseCases.Finalizacion
 
                         if (billeteraVendedor != null && billeteraComprador != null)
                         {
-                            // Transferir el saldo retendido al vendedor
                             billeteraComprador.ConfirmarDebito(ultimaPuja.Monto);
                             billeteraVendedor.AcreditarVenta(ultimaPuja.Monto);
 
@@ -65,14 +64,13 @@ namespace Application.UseCases.Finalizacion
                     }
                     else
                     {
-                        // Subasta finalizada sin ofertas
                         subasta.MarcarComoFinalizada(ganadorId: null, precioFinal: null);
                     }
 
                     await _subastaRepository.UpdateAsync(subasta, cancellationToken);
 
                     await _auditoriaService.RegistrarEventoAsync(
-                    usuarioId: 0, // 0 indica que fue ejecutado por el Sistema / Worker
+                    usuarioId: null,
                     entidad: "Subasta",
                     entidadId: subasta.Id,
                     accion: "CAMBIO_ESTADO",

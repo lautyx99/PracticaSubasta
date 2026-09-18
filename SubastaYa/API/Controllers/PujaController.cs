@@ -13,7 +13,7 @@ namespace API.Controllers
 {
     [Authorize]
     [ApiController]
-    [Route("api/subastas/{subastaId}/pujas")] // <-- Ruta base estandarizada
+    [Route("api/subastas/{subastaId}/pujas")]
     public class PujaController : ControllerBase
     {
         private readonly ObtenerPuja obtenerPuja;
@@ -76,7 +76,6 @@ namespace API.Controllers
 
                 PujaResultadoDto resultado = await realizarPujaUseCase.ExecuteAsync(subastaId, dto);
 
-                // Corregido: controllerName apunta a "Puja" para coincidir con PujaController
                 return CreatedAtAction(
                     actionName: nameof(ObtenerPujaPorId),
                     controllerName: "Puja",
@@ -85,7 +84,6 @@ namespace API.Controllers
             }
             catch (Microsoft.EntityFrameworkCore.DbUpdateConcurrencyException)
             {
-                // 🎯 Forzamos el HTTP 409 Conflict ante colisiones de concurrencia optimista
                 return Conflict(new { mensaje = "Conflicto de concurrencia: la subasta fue modificada por otra puja simultánea." });
             }
             catch (InvalidOperationException ex)

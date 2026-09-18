@@ -50,10 +50,10 @@ namespace Domain.Entities
 
         private Subasta()
         {
-            // Required by EF Core
+            
         }
         
-        public Subasta(int vendedorId, int categoriaId, string titulo, string descripcion, string? urlImagen, decimal precioInicial, decimal incrementoMinimo, DateTime fechaInicio, DateTime fechaFin)
+        public Subasta(int vendedorId, int categoriaId, string titulo, string descripcion, string? urlImagen, decimal precioInicial, decimal incrementoMinimo, DateTime fechaInicio, DateTime fechaFin,EstadoSubasta estadoInicial = EstadoSubasta.Activa)
         {
             VendedorId = vendedorId;
             CategoriaId = categoriaId;
@@ -65,11 +65,10 @@ namespace Domain.Entities
             FechaInicio = fechaInicio;
             FechaFin = fechaFin;
             FechaFinOriginal = fechaFin;
-            Estado = EstadoSubasta.Activa;
+            Estado = estadoInicial;
             Version = 1;
         }
 
-        // Métodos de dominio
 
         public void MarcarComoFinalizada(int? ganadorId, decimal? precioFinal)
         {
@@ -103,24 +102,6 @@ namespace Domain.Entities
         public void MarcarComoCancelada()
         {
             Estado = EstadoSubasta.Cancelada;
-        }
-
-        public void EstablecerFechas(DateTime fechaInicio, DateTime fechaFin)
-        {
-            // 1. La fecha de inicio no puede ser en el pasado (con un margen mínimo opcional por segundos de demora)
-            if (fechaInicio < DateTime.UtcNow.AddMinutes(-1))
-            {
-                throw new ArgumentException("La fecha de inicio no puede ser una fecha pasada.", nameof(fechaInicio));
-            }
-
-            // 2. El inicio debe ser obligatoriamente antes del cierre
-            if (fechaInicio >= fechaFin)
-            {
-                throw new ArgumentException("La fecha de inicio debe ser anterior a la fecha y hora de cierre.", nameof(fechaInicio));
-            }
-
-            FechaInicio = fechaInicio;
-            FechaFin = fechaFin;
         }
 
         public bool EstaActiva() =>

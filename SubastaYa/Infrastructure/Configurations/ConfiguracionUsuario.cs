@@ -11,7 +11,6 @@ namespace Infrastructure.Configurations
     {
         public void Configure(EntityTypeBuilder<Usuario> builder)
         {
-            // Configure the Usuario entity
 
             builder.HasKey(u => u.Id);
 

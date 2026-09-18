@@ -10,7 +10,7 @@ namespace Domain.Entities
     {
         public int Id { get; private set; }
 
-        public int UsuarioId { get; private set; }
+        public int? UsuarioId { get; private set; }
 
         public string Entidad { get; private set; } = null!;
 
@@ -28,7 +28,7 @@ namespace Domain.Entities
 
         private AuditoriaLog() { }
 
-        public AuditoriaLog(int usuarioId, string entidad, int entidadId, string accion, string detalleJson, DateTime fecha, string servicio)
+        public AuditoriaLog(int? usuarioId, string entidad, int entidadId, string accion, string detalleJson, DateTime fecha, string servicio)
         {
             UsuarioId = usuarioId;
             Entidad = entidad;

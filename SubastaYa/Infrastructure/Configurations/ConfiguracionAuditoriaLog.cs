@@ -11,8 +11,6 @@ namespace Infrastructure.Configurations
     {
         public void Configure(EntityTypeBuilder<AuditoriaLog> builder)
         {
-            // Configure the AuditoriaLog entity}
-
 
             builder.HasKey(a => a.Id);
 

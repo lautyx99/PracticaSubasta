@@ -26,10 +26,10 @@ namespace API.Controllers
 
             if (perfil == null)
             {
-                return NotFound($"No se encontró el usuario con ID {id}."); // Devuelve 404
+                return NotFound($"No se encontró el usuario con ID {id}."); 
             }
 
-            return Ok(perfil); // Devuelve 200 OK
+            return Ok(perfil); 
         }
     }
 }

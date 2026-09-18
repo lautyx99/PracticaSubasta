@@ -25,7 +25,6 @@ namespace Application.UseCases.Subastas
                 return null;
             }
 
-            // Usar el método de extensión que realiza la proyección completa
             return subasta.ToDto();
         }
 

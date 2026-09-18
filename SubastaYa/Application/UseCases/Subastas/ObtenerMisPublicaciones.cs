@@ -17,7 +17,6 @@ namespace Application.UseCases.Subastas
 
         public async Task<IEnumerable<SubastaDto>> ExecuteAsync(int usuarioId, CancellationToken cancellationToken = default)
         {
-            // 1. Llamamos al repositorio
             var subastas = await _subastaRepository.GetByVendedorIdAsync(usuarioId, cancellationToken);
 
             return subastas.Select(s => new SubastaDto

@@ -11,7 +11,6 @@ namespace Infrastructure.Configurations
     {
         public void Configure(EntityTypeBuilder<Subasta> builder)
         {
-            // Configure the Subasta entity
 
             builder.HasKey(s => s.Id);
 
@@ -35,7 +34,7 @@ namespace Infrastructure.Configurations
             .HasPrecision(18, 2);
 
             builder.Property(s => s.Version)
-                    .IsConcurrencyToken(); // Habilita el Optimistic Locking en EF Core
+                    .IsConcurrencyToken(); 
 
         }
     }

@@ -48,7 +48,7 @@ namespace Application.UseCases.Subastas
             }
 
             // 4. Cambiar estado a Cancelada / Eliminar
-            subasta.MarcarComoCancelada(); // O el método de borrado físico que maneje tu repositorio
+            subasta.MarcarComoCancelada();
             await _subastaRepository.UpdateAsync(subasta, cancellationToken);
 
             // 5. 📝 Registrar la eliminación en el sistema de auditoría

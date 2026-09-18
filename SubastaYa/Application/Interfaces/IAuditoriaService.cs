@@ -8,7 +8,7 @@ namespace Application.Interfaces
 {
     public interface IAuditoriaService
     {
-        Task RegistrarEventoAsync(int usuarioId, string entidad, int entidadId, string accion, object detalles, string servicio);
+        Task RegistrarEventoAsync(int? usuarioId, string entidad, int entidadId, string accion, object detalles, string servicio);
     }
 
 }

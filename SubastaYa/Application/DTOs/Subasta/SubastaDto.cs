@@ -23,11 +23,11 @@ namespace Application.DTOs.Subasta
         public int? GanadorId { get; set; }          
         public decimal? PrecioFinal { get; set; }     
 
-        public int Version { get; set; } // para control de concurrencia optimista
+        public int Version { get; set; }
 
         public int CantidadPujas { get; set; }
 
-        public PujaDto? MejorPuja { get; set; }      // opcional, útil para el front
+        public PujaDto? MejorPuja { get; set; }    
 
         public List<PujaDto> Pujas { get; set; } = new();
     }

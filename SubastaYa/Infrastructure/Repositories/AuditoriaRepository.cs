@@ -31,8 +31,8 @@ namespace Infrastructure.Repositories
 
         public async Task<IEnumerable<AuditoriaLog>> ObtenerTodosAsync()
         {
-            return await _context.AuditoriaLogs// Asegúrate de que el nombre del DbSet coincida con tu DbContext
-                .OrderByDescending(a => a.Fecha) // O la propiedad de fecha que tengas (creadoEn, etc.)
+            return await _context.AuditoriaLogs
+                .OrderByDescending(a => a.Fecha)
                 .ToListAsync();
         }
     }

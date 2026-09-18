@@ -60,7 +60,6 @@ namespace API.Middlewares
             }
             catch (InvalidOperationException ex)
             {
-                // AQUÍ VA LA VALIDACIÓN DE HasStarted Y Clear()
                 if (!context.Response.HasStarted)
                 {
                     context.Response.Clear();
@@ -105,21 +104,6 @@ namespace API.Middlewares
                     await context.Response.WriteAsync(JsonSerializer.Serialize(problem));
                 }
             }
-           /* catch (Exception ex)
-            {
-                if (!context.Response.HasStarted)
-                {
-                    context.Response.Clear();
-                    context.Response.ContentType = "application/json";
-                    context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-
-                    var problem = new { Status = 500, Title = "Error Interno", Detail = $"[CODE-ERROR] - {ex.Message}" };
-                    await context.Response.WriteAsync(JsonSerializer.Serialize(problem));
-                }
-            }
-
-
-            */
         }
     }
 }

@@ -37,7 +37,6 @@ namespace Infrastructure.Seed
 
             var pujas = new List<Puja>
         {
-            // Subasta activa estándar (líder $45.000)
             new Puja(subastaEstandar.Id, comprador2.Id, 40000m, ahora.AddMinutes(-20)),
             new Puja(subastaEstandar.Id, comprador1.Id, 45000m, ahora.AddMinutes(-10)),
 

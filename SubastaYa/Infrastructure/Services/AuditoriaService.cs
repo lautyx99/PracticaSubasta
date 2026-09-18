@@ -18,7 +18,7 @@ namespace Infrastructure.Services
             _context = context;
         }
 
-        public async Task RegistrarEventoAsync(int usuarioId, string entidad, int entidadId, string accion, object detalles, string servicio)
+        public async Task RegistrarEventoAsync(int? usuarioId, string entidad, int entidadId, string accion, object detalles, string servicio)
         {
             string detalleJson = System.Text.Json.JsonSerializer.Serialize(detalles);
 

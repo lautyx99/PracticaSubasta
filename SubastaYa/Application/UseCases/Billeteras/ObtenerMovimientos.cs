@@ -17,7 +17,6 @@ namespace Application.UseCases.Billeteras
 
         public async Task<IEnumerable<TransaccionDto>> ExecuteAsync(int billeteraId)
         {
-            // Consultas la billetera incluyendo sus transacciones
             var billetera = await _billeteraRepository.GetByIdWithTransaccionesAsync(billeteraId);
 
             if (billetera == null || billetera.Transacciones == null || !billetera.Transacciones.Any())

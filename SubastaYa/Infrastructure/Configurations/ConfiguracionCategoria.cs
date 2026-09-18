@@ -11,7 +11,6 @@ namespace Infrastructure.Configurations
     {
         public void Configure(EntityTypeBuilder<Categoria> builder)
         {
-            // Configure the Categoria entity
 
             builder.HasKey(c => c.Id);
 

@@ -38,7 +38,7 @@ namespace Infrastructure.Repositories
         {
             return await _context.Pujas
                  .Where(p => p.SubastaId == subastaId)
-                 .OrderByDescending(p => p.Fecha_Puja) // O por p.Id descendente
+                 .OrderByDescending(p => p.Fecha_Puja) 
                  .FirstOrDefaultAsync();
         }
     }

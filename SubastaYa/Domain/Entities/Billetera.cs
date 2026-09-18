@@ -34,7 +34,6 @@ namespace Domain.Entities
             Version = version;
         }
 
-        // Método para realizar el depósito de forma segura
         public void Depositar(decimal monto)
         {
             if (monto <= 0)
@@ -42,19 +41,16 @@ namespace Domain.Entities
                 throw new ArgumentException("[CODE-ERROR] - El monto a depositar debe ser mayor a cero.", nameof(monto));
             }
 
-            // Al incrementar el SaldoTotal, el SaldoDisponible aumenta automáticamente
             SaldoTotal += monto;
 
-            // Control de concurrencia optimista
             Version++;
 
-            // Registrar la transacción en el ledger para que el historial la refleje
             var transaccion = new TransaccionLedger(
                 billeteraId: this.Id,
                 tipo: "Deposito",
                 monto: monto,
                 fecha: DateTime.UtcNow,
-                subastaId: null // O el ID de subasta correspondiente si aplica
+                subastaId: null 
             );
 
             Transacciones.Add(transaccion);
@@ -84,7 +80,7 @@ namespace Domain.Entities
             Version++;
         }
 
-        // Método para procesar el débito del comprador ganador
+
         public void ConfirmarDebito(decimal monto)
         {
             if (SaldoRetenido < monto)
@@ -94,7 +90,6 @@ namespace Domain.Entities
             SaldoTotal -= monto;
         }
 
-        // Método para acreditar el saldo al vendedor
         public void AcreditarVenta(decimal monto)
         {
             SaldoTotal += monto;

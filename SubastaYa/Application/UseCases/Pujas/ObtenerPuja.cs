@@ -16,12 +16,10 @@ namespace Application.UseCases.Pujas
             _pujaRepository = pujaRepository;
         }
 
-        // Se cambia el parámetro a int subastaId
         public async Task<IEnumerable<PujaDto>> ExecuteAsync(int subastaId)
         {
             var pujas = await _pujaRepository.GetBySubastaIdAsync(subastaId);
 
-            // Si no hay pujas, el repositorio o LINQ devolverá una lista vacía, no null.
             if (pujas == null || !pujas.Any())
             {
                 return Enumerable.Empty<PujaDto>();

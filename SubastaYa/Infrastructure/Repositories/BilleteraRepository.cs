@@ -34,7 +34,7 @@ namespace Infrastructure.Repositories
             _context.Billeteras.Update(billetera);
             foreach (var transaccion in billetera.Transacciones)
             {
-                if (transaccion.Id == 0) // O la validación de ID por defecto que uses (ej. Guid.Empty si usas Guids)
+                if (transaccion.Id == 0) 
                 {
                     _context.Entry(transaccion).State = Microsoft.EntityFrameworkCore.EntityState.Added;
                 }

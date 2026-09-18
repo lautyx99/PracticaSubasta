@@ -28,11 +28,11 @@ namespace Infrastructure
 
             modelBuilder.Entity<Subasta>()
                 .Property(s => s.Estado)
-                .HasConversion<string>(); // Configura la conversión de enum a string
+                .HasConversion<string>(); 
 
             modelBuilder.Entity<Billetera>()
-                .Ignore(b => b.SaldoDisponible); // Ignora la propiedad calculada SaldoDisponible)
+                .Ignore(b => b.SaldoDisponible);
         }
-
+      
     }
 }

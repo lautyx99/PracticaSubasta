@@ -48,7 +48,7 @@ namespace API.Controllers
     {
         var transacciones = await _obtenerMovimientosBilletera.ExecuteAsync(billeteraId);
 
-        // Siempre retorna 200 OK (con elementos o un array vacío [])
+      
         return Ok(transacciones);
     }
 
@@ -60,7 +60,6 @@ namespace API.Controllers
                 return BadRequest("El monto a depositar debe ser mayor a cero.");
             }
 
-            // Se pasa el objeto dto completo al caso de uso
             var billeteraActualizada = await _realizarDeposito.ExecuteAsync(dto);
 
             if (billeteraActualizada == null)

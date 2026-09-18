@@ -1,4 +1,5 @@
 ﻿using Application.DTOs.Subasta;
+using Domain;
 using Domain.Entities;
 using Domain.Interfaces;
 using System;
@@ -39,6 +40,10 @@ namespace Application.UseCases.Subastas
                 throw new ArgumentException("La fecha de fin debe ser posterior a la fecha de inicio.", nameof(dto.FechaFin));
             }
 
+            var estadoInicial = dto.FechaInicio > DateTime.UtcNow
+             ? EstadoSubasta.Proxima
+             : EstadoSubasta.Activa;
+
             // 2. Creación de la Entidad de Dominio (encapsula las reglas de inicialización)
             var subasta = new Subasta(
                 vendedorId: dto.VendedorId,
@@ -49,7 +54,8 @@ namespace Application.UseCases.Subastas
                 precioInicial: dto.PrecioInicial,
                 incrementoMinimo: dto.IncrementoMinimo,
                 fechaInicio: dto.FechaInicio,
-                fechaFin: dto.FechaFin
+                fechaFin: dto.FechaFin,
+                estadoInicial: estadoInicial
             );
 
             // 3. Persistencia mediante Repositorio y Unit of Work

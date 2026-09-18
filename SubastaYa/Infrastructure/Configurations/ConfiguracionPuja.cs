@@ -11,7 +11,6 @@ namespace Infrastructure.Configurations
     {
         public void Configure(EntityTypeBuilder<Puja> builder)
         {
-            // Configure the Puja entity
 
             builder.HasKey(p => p.Id);
 

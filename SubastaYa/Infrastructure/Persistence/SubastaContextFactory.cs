@@ -12,7 +12,6 @@ namespace Infrastructure.Persistence
         {
             var optionsBuilder = new DbContextOptionsBuilder<SubastaContext>();
 
-            // Poné acá tu connection string
             optionsBuilder.UseSqlServer(
                 "Server=Lautaro\\SQLEXPRESS;Database=Subasta;Trusted_Connection=True;TrustServerCertificate=True");
 

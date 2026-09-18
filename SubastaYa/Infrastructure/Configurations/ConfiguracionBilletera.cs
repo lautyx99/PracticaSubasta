@@ -11,7 +11,6 @@ namespace Infrastructure.Configurations
     {
         public void Configure(EntityTypeBuilder<Billetera> builder)
         {
-            // Configure the Billetera entity
 
             builder.HasKey(b => b.Id);
 
@@ -35,7 +34,7 @@ namespace Infrastructure.Configurations
                    .HasPrecision(18, 2);
 
             builder.Property(b => b.Version)
-                    .IsConcurrencyToken(); // Habilita el Optimistic Locking en EF Core)
+                    .IsConcurrencyToken(); 
 
             builder.Ignore(b => b.SaldoDisponible);
         }

@@ -17,6 +17,8 @@ namespace Domain.Interfaces
 
         Task<List<Subasta>> GetByUsuarioParticipanteAsync(int usuarioId, CancellationToken cancellationToken);
 
+        Task<List<Subasta>> GetProximasAsync(DateTime fechaActual, CancellationToken cancellationToken);
+
         Task AddAsync(Subasta subasta);
         Task UpdateAsync(Subasta subasta , CancellationToken cancellationToken);
         Task DeleteAsync(Subasta subasta);
